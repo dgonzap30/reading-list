@@ -40,7 +40,7 @@ export function Header({
               </div>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-white/60">12‑week reading voyage</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-white/60">16‑week reading voyage</p>
               <p className="text-lg font-semibold text-white">Progress: {pct}%</p>
               <p className="text-sm text-white/70">{vibe}</p>
             </div>
