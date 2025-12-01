@@ -1,4 +1,4 @@
-const visionKey = 'Vision (Sci‑Fi)';
+const visionKey = 'Vision / Fiction';
 
 export const DOMAIN_THEMES = {
   default: {
@@ -36,6 +36,13 @@ export const DOMAIN_THEMES = {
     filter: 'bg-sky-500/20 border border-sky-400/60 text-sky-50 shadow-[0_6px_30px_rgba(14,165,233,0.35)]',
     chip: 'bg-sky-500/15 text-sky-100',
   },
+  'Founder/Strategy': {
+    pill: 'bg-indigo-500/15 border border-indigo-400/50 text-indigo-100',
+    icon: 'text-indigo-200',
+    halo: 'from-indigo-500/25 via-indigo-500/5 to-transparent',
+    filter: 'bg-indigo-500/20 border border-indigo-400/60 text-indigo-50 shadow-[0_6px_30px_rgba(99,102,241,0.35)]',
+    chip: 'bg-indigo-500/15 text-indigo-100',
+  },
   [visionKey]: {
     pill: 'bg-violet-500/15 border border-violet-400/50 text-violet-100',
     icon: 'text-violet-200',
@@ -54,4 +61,4 @@ export const DOMAIN_THEMES = {
 
 export const getDomainTheme = (domain) => DOMAIN_THEMES[domain] || DOMAIN_THEMES.default;
 
-DOMAIN_THEMES['Vision (Sci-Fi)'] = DOMAIN_THEMES[visionKey];
+DOMAIN_THEMES['Vision / Fiction'] = DOMAIN_THEMES[visionKey];

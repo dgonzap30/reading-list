@@ -7,24 +7,13 @@ import { DOMAIN } from '../data/plan.js';
 import { todayYMD } from '../utils/date.js';
 import { getDomainTheme } from '../utils/domainTheme.js';
 
-export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle, onStartTimer }) {
+import { SessionRow } from './SessionRow.jsx';
+
+export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle, onStartTimer, onToggleSession, onSaveNote }) {
   const doneCount = week.sessions.filter((session) => state.checks[session.id]).length;
   const pct = week.sessions.length ? Math.round((doneCount / week.sessions.length) * 100) : 0;
 
-  const toggle = (id) => {
-    setState((prev) => {
-      const nextChecked = !prev.checks[id];
-      const next = { ...prev, checks: { ...prev.checks, [id]: nextChecked } };
-      if (nextChecked) {
-        const stamp = todayYMD();
-        next.activityDates = { ...(prev.activityDates || {}), [stamp]: true };
-      }
-      return next;
-    });
-  };
 
-  const saveNote = (id, text) =>
-    setState((prev) => ({ ...prev, notes: { ...prev.notes, [id]: text } }));
 
   const markWeek = (value) => {
     setState((prev) => {
@@ -69,6 +58,7 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-white/60">Week {week.id}</p>
             <p className="text-lg font-semibold text-white">{week.title}</p>
+            {week.metaIntent && <p className="text-sm text-white/50">{week.metaIntent}</p>}
           </div>
           <Lucide.ChevronDown
             className={clsx(
@@ -84,6 +74,15 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
               <span className="font-semibold">Anchor</span>
             </div>
             <p className="mt-1 text-emerald-50/90">{week.anchor}</p>
+          </div>
+        )}
+        {week.primer && (
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
+            <div className="flex items-center gap-2">
+              <Lucide.BookOpen className="h-4 w-4 text-white/60" />
+              <span className="font-semibold text-white">Primer</span>
+            </div>
+            <p className="mt-1 text-white/70">{week.primer}</p>
           </div>
         )}
         <div className="flex flex-wrap items-center gap-3">
@@ -110,90 +109,48 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
         {expanded && (
           <>
             <div className="space-y-3">
-              {week.sessions.map((session) => {
-                const Icon = DOMAIN[session.domain]?.icon || Lucide.Book;
-                const checked = Boolean(state.checks[session.id]);
-                const theme = getDomainTheme(session.domain);
-                return (
-                  <div
-                    key={session.id}
-                    data-session={session.id}
-                    className={clsx(
-                      'flex flex-col gap-3 p-4 rounded-2xl border transition-all bg-white/5',
-                      checked
-                        ? 'border-emerald-500/40 shadow-[0_10px_30px_rgba(16,185,129,0.15)]'
-                        : 'border-white/10 hover:border-white/25',
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <button
-                        type="button"
-                        onClick={() => toggle(session.id)}
-                        className={clsx(
-                          'h-9 w-9 shrink-0 rounded-2xl border transition flex items-center justify-center',
-                          checked
-                            ? 'border-emerald-400 bg-emerald-500/20 text-emerald-50'
-                            : 'border-white/15 bg-white/5 text-white/70 hover:border-white/40',
-                        )}
-                        aria-pressed={checked}
-                        aria-label={checked ? 'Unmark session' : 'Mark session complete'}
-                      >
-                        {checked ? (
-                          <Lucide.CheckCircle2 className="h-5 w-5" />
-                        ) : (
-                          <Lucide.Circle className="h-5 w-5" />
-                        )}
-                      </button>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 text-sm flex-wrap">
-                          <Icon className={clsx('w-4 h-4', theme.icon)} />
-                          <span className="text-white font-semibold truncate">{session.book}</span>
-                          <span className="text-white/50">•</span>
-                          <span className="text-white/70 truncate">{session.details}</span>
-                          <span className={clsx('ml-auto text-[11px] px-2 py-0.5 rounded-full', theme.pill)}>
-                            {session.domain}
-                          </span>
-                        </div>
-                        <textarea
-                          value={state.notes[session.id] || ''}
-                          onChange={(event) => saveNote(session.id, event.target.value)}
-                          placeholder="Drop one idea, one question, one application…"
-                          className="mt-3 w-full min-h-[64px] px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      <button
-                        type="button"
-                        onClick={() => onStartTimer?.(session, 25 * 60)}
-                        className="inline-flex items-center gap-1 rounded-2xl border border-white/15 px-3 py-1 text-white/80 hover:border-white/40"
-                      >
-                        <Lucide.Timer className="h-3.5 w-3.5" />
-                        Kick off 25
-                      </button>
-                      {!checked && (
-                        <button
-                          type="button"
-                          onClick={() => toggle(session.id)}
-                          className="inline-flex items-center gap-1 rounded-2xl bg-emerald-500/20 px-3 py-1 text-emerald-50 shadow-[0_8px_25px_rgba(16,185,129,0.35)] hover:bg-emerald-500/30"
-                        >
-                          <Lucide.Check className="h-3.5 w-3.5" />
-                          Mark done
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              {week.sessions.map((session) => (
+                <SessionRow
+                  key={session.id}
+                  session={session}
+                  checked={Boolean(state.checks[session.id])}
+                  note={state.notes[session.id]}
+                  onToggle={onToggleSession}
+                  onSaveNote={onSaveNote}
+                  onStartTimer={onStartTimer}
+                />
+              ))}
             </div>
 
-            {week.microProject && (
+            {week.smallWin && (
               <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-center gap-2 text-sm text-white/80">
-                  <Lucide.Sparkles className="h-4 w-4 text-amber-200" />
-                  <span className="font-semibold text-white">Micro‑project</span>
+                  <Lucide.Trophy className="h-4 w-4 text-amber-200" />
+                  <span className="font-semibold text-white">Small Win</span>
                 </div>
-                <p className="mt-2 text-sm text-white/70">{week.microProject}</p>
+                <p className="mt-2 text-sm text-white/70">{week.smallWin}</p>
+              </div>
+            )}
+
+            {week.fiction && (
+              <div className="rounded-3xl border border-violet-500/20 bg-violet-500/5 p-4">
+                <div className="flex items-center gap-2 text-sm text-violet-200">
+                  <Lucide.Sparkles className="h-4 w-4" />
+                  <span className="font-semibold">Fiction Companion</span>
+                </div>
+                <div className="mt-3 space-y-2">
+                  <div>
+                    <p className="font-medium text-white">{week.fiction.title}</p>
+                    <p className="text-xs text-white/50">by {week.fiction.author}</p>
+                  </div>
+                  <p className="text-sm text-white/70">{week.fiction.match}</p>
+                  {week.fiction.runnerUp && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-white/40">
+                      <span>Runner-up:</span>
+                      <span className="text-white/60">{week.fiction.runnerUp}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -207,7 +164,7 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
                     weekNotes: { ...prev.weekNotes, [week.id]: event.target.value },
                   }))
                 }
-                placeholder="Retro ritual — what worked, what to tweak, what to celebrate."
+                placeholder="What shifted in me this week?"
                 className="mt-2 w-full rounded-3xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-emerald-300/60 focus:outline-none"
               />
             </div>

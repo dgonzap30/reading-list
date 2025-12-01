@@ -3,17 +3,20 @@ import confetti from 'canvas-confetti';
 import { Toaster, toast } from 'react-hot-toast';
 import * as Lucide from 'lucide-react';
 import { format } from 'date-fns';
-import { PLAN, DOMAIN } from './data/plan.js';
+import { PLAN, DOMAIN, RED_THREADS, ENERGY_MATCHING } from './data/plan.js';
 import { Header } from './components/Header.jsx';
 import { Toolbar } from './components/Toolbar.jsx';
 import { Timer } from './components/Timer.jsx';
 import { WeekCard } from './components/WeekCard.jsx';
+import { SessionRow } from './components/SessionRow.jsx';
 import { SipsAndSwaps } from './components/SipsAndSwaps.jsx';
 import { TodayCard } from './components/TodayCard.jsx';
+import { WeekZeroCard } from './components/WeekZeroCard.jsx';
+import { FictionLibrary } from './components/FictionLibrary.jsx';
 import { CommandPalette } from './components/CommandPalette.jsx';
 import { Badges, computeBadges } from './components/Badges.jsx';
 import { SessionTicker } from './components/SessionTicker.jsx';
-import { PhaseOverview } from './components/PhaseOverview.jsx';
+
 import { usePersistentState } from './hooks/usePersistentState.js';
 import { diffWeeks, todayYMD, diffDays } from './utils/date.js';
 import { exportPlanToICS } from './utils/exportICS.js';
@@ -73,7 +76,10 @@ export default function App() {
   const sessionsRemaining = Math.max(0, totalSessions - totalDone);
   const planDay = state.startDate ? Math.max(1, diffDays(state.startDate) + 1) : 1;
   const todayLabel = format(new Date(), 'EEEE, MMM d');
-  const [expandedWeek, setExpandedWeek] = useState(() => currentWeek);
+
+  // Changed from single number to Set of numbers for multi-expand
+  const [expandedWeeks, setExpandedWeeks] = useState(() => new Set([currentWeek]));
+
   const bookList = useMemo(() => {
     const map = new Map();
     PLAN.weeks.forEach((week) => {
@@ -108,9 +114,10 @@ export default function App() {
   );
 
   useEffect(() => {
-    setExpandedWeek((prev) => {
-      if (!prev || prev < 1 || prev > PLAN.weeks.length) {
-        return currentWeek;
+    // Ensure current week is expanded on load if nothing else is
+    setExpandedWeeks((prev) => {
+      if (prev.size === 0) {
+        return new Set([currentWeek]);
       }
       return prev;
     });
@@ -121,15 +128,17 @@ export default function App() {
       hasScrolledRef.current = true;
       return;
     }
-    if (!expandedWeek) return;
-    const frame = requestAnimationFrame(() => {
-      document.getElementById(`week-${expandedWeek}`)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+    // Only scroll if we have exactly one week expanded and it's the current one (simple heuristic)
+    if (expandedWeeks.size === 1 && expandedWeeks.has(currentWeek)) {
+      const frame = requestAnimationFrame(() => {
+        document.getElementById(`week-${currentWeek}`)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
       });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [expandedWeek]);
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [expandedWeeks, currentWeek]);
 
   useEffect(() => {
     if (!sessionTicker) return undefined;
@@ -219,7 +228,12 @@ export default function App() {
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  const jumpToWeek = (id) => document.getElementById(`week-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const jumpToWeek = (id) => {
+    setExpandedWeeks(prev => new Set([...prev, id]));
+    setTimeout(() => {
+      document.getElementById(`week-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
 
   const markAllWeek = (id) => {
     const week = PLAN.weeks.find((w) => w.id === id);
@@ -239,19 +253,25 @@ export default function App() {
     toast.success(`Week ${id} completed!`);
   };
 
-  const filteredWeeks = useMemo(() => {
+  // Logic for flat filtering vs weekly view
+  const isFlatView = domain !== 'All' || query.trim().length > 0;
+
+  const filteredContent = useMemo(() => {
     const lowered = query.trim().toLowerCase();
-    return PLAN.weeks.map((week) => ({
-      ...week,
-      sessions: week.sessions.filter((session) => {
+
+    if (isFlatView) {
+      // Flatten all sessions
+      const allSessions = PLAN.weeks.flatMap(week => week.sessions);
+      return allSessions.filter(session => {
         const domainOk = domain === 'All' || session.domain === domain;
-        const queryOk =
-          !lowered ||
-          [session.domain, session.book, session.details].join(' ').toLowerCase().includes(lowered);
+        const queryOk = !lowered || [session.domain, session.book, session.details].join(' ').toLowerCase().includes(lowered);
         return domainOk && queryOk;
-      }),
-    }));
-  }, [query, domain]);
+      });
+    } else {
+      // Return weeks (no filtering needed since we only filter in flat view or show all weeks)
+      return PLAN.weeks;
+    }
+  }, [query, domain, isFlatView]);
 
   const badges = computeBadges(state);
   const statCards = [
@@ -306,6 +326,33 @@ export default function App() {
     });
   };
 
+  const toggleWeekExpansion = (id) => {
+    setExpandedWeeks((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSession = (id) => {
+    setState((prev) => {
+      const nextChecked = !prev.checks[id];
+      const next = { ...prev, checks: { ...prev.checks, [id]: nextChecked } };
+      if (nextChecked) {
+        const stamp = todayYMD();
+        next.activityDates = { ...(prev.activityDates || {}), [stamp]: true };
+      }
+      return next;
+    });
+  };
+
+  const saveNote = (id, text) =>
+    setState((prev) => ({ ...prev, notes: { ...prev.notes, [id]: text } }));
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-transparent text-white">
       <div
@@ -340,19 +387,27 @@ export default function App() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.35),_transparent_60%)] blur-3xl" />
               </div>
               <div className="relative space-y-4">
-                <p className="text-xs uppercase tracking-[0.35em] text-white/60">12‑week mixed reading sprint</p>
+                <div className="flex flex-wrap gap-2">
+                  {RED_THREADS.map((thread) => (
+                    <div key={thread.title} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-wider text-white/80 backdrop-blur-md">
+                      <span>{thread.emoji}</span>
+                      <span className="font-semibold">{thread.title}</span>
+                    </div>
+                  ))}
+                </div>
                 <h1 className="text-3xl font-semibold leading-tight text-white md:text-4xl">
                   Craft a mind you trust — systems, EQ, craft, society, and sci‑fi in deliberate reps.
                 </h1>
-                <p className="text-sm text-white/75">
-                  Four ~45–60 minute sessions per week, plus a Sunday retro + micro‑project. Note template:
-                  <span className="ml-1 font-semibold text-white">idea → question → application</span>.
-                </p>
-                <div className="flex flex-wrap gap-2 text-xs text-white/70">
-                  <span className="rounded-full border border-white/15 px-3 py-1">Focus blocks + streak tracking</span>
-                  <span className="rounded-full border border-white/15 px-3 py-1">Command palette (⌘/Ctrl+K)</span>
-                  <span className="rounded-full border border-white/15 px-3 py-1">Export to calendar</span>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {ENERGY_MATCHING.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-xs">
+                      <span className="text-white/60">{item.label}</span>
+                      <span className="font-medium text-emerald-200">→ {item.action}</span>
+                    </div>
+                  ))}
                 </div>
+
                 <div>
                   <div className="flex items-center justify-between text-xs text-white/60">
                     <span>Progress</span>
@@ -392,7 +447,7 @@ export default function App() {
           </div>
         </section>
 
-        <PhaseOverview phases={PLAN.phases} currentWeek={currentWeek} />
+
 
         <Toolbar
           query={query}
@@ -406,22 +461,50 @@ export default function App() {
         <TodayCard plan={PLAN} state={state} currentWeek={currentWeek} scrollTo={scrollTo} />
 
         <div className="mx-auto mt-8 grid w-full max-w-6xl gap-5 px-4 md:px-6">
-          {filteredWeeks.map((week) => (
-            <div key={week.id} id={`week-${week.id}`} className="scroll-mt-28 md:scroll-mt-32">
-              <WeekCard
-                week={week}
-                state={state}
-                setState={setState}
-                isCurrent={week.id === currentWeek}
-                expanded={expandedWeek === week.id}
-                onToggle={() => setExpandedWeek(week.id)}
-                onStartTimer={handleStartSessionTimer}
-              />
+          {!isFlatView && <WeekZeroCard />}
+
+          {isFlatView ? (
+            <div className="space-y-4">
+              {filteredContent.length === 0 ? (
+                <div className="text-center text-white/50 py-12">No sessions found matching your filter.</div>
+              ) : (
+                filteredContent.map(session => (
+                  <SessionRow
+                    key={session.id}
+                    session={session}
+                    checked={Boolean(state.checks[session.id])}
+                    note={state.notes[session.id]}
+                    onToggle={toggleSession}
+                    onSaveNote={saveNote}
+                    onStartTimer={handleStartSessionTimer}
+                  />
+                ))
+              )}
             </div>
-          ))}
+          ) : (
+            filteredContent.map((week) => (
+              <div key={week.id} id={`week-${week.id}`} className="scroll-mt-28 md:scroll-mt-32">
+                <WeekCard
+                  week={week}
+                  state={state}
+                  setState={setState}
+                  isCurrent={week.id === currentWeek}
+                  expanded={expandedWeeks.has(week.id)}
+                  onToggle={() => toggleWeekExpansion(week.id)}
+                  onStartTimer={handleStartSessionTimer}
+                  onToggleSession={toggleSession}
+                  onSaveNote={saveNote}
+                />
+              </div>
+            ))
+          )}
         </div>
 
         <Badges badges={badges} />
+
+        <div className="mx-auto mt-16 max-w-4xl px-6">
+          <FictionLibrary />
+        </div>
 
         <SipsAndSwaps plan={PLAN} />
       </main>
