@@ -1,0 +1,246 @@
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import * as Lucide from 'lucide-react';
+import clsx from 'clsx';
+import { SECTIONS, FRAGMENT_STATUSES } from '../data/sections.js';
+import { getActiveFragments, searchFragments } from '../utils/fragmentHelpers.js';
+
+export function FragmentDraftsHub({
+  isOpen,
+  onClose,
+  fragments,
+  writings,
+  onUpdateFragment
+}) {
+  const [filterSection, setFilterSection] = useState('All');
+  const [filterBook, setFilterBook] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  const [selectedFragment, setSelectedFragment] = useState(null);
+
+  // Get all unique books from fragments
+  const books = useMemo(() => {
+    const bookSet = new Set(Object.values(fragments).map(f => f.sourceBook));
+    return ['All', ...Array.from(bookSet).sort()];
+  }, [fragments]);
+
+  // Filter fragments
+  const filteredFragments = useMemo(() => {
+    let result = searchQuery.trim()
+      ? searchFragments(fragments, searchQuery)
+      : getActiveFragments(fragments);
+
+    if (filterSection !== 'All') {
+      result = result.filter(f => f.sectionTag === filterSection);
+    }
+
+    if (filterBook !== 'All') {
+      result = result.filter(f => f.sourceBook === filterBook);
+    }
+
+    if (filterStatus !== 'All') {
+      result = result.filter(f => f.status === filterStatus);
+    }
+
+    return result;
+  }, [fragments, filterSection, filterBook, filterStatus, searchQuery]);
+
+  const handleUpdateStatus = (fragmentId, newStatus) => {
+    onUpdateFragment(fragmentId, { status: newStatus, updatedAt: new Date().toISOString() });
+  };
+
+  const handleEditFragment = (fragment) => {
+    setSelectedFragment(fragment);
+  };
+
+  if (!isOpen) return null;
+
+  const sectionKeys = Object.keys(SECTIONS);
+  const totalCount = Object.values(fragments).filter(f => f.status !== 'Discard').length;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0A0A0A]">
+      {/* Header */}
+      <div className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+                <Lucide.FileEdit className="h-6 w-6 text-amber-400" />
+                Fragment Drafts
+              </h1>
+              <p className="text-white/60 text-sm mt-1">
+                {totalCount} {totalCount === 1 ? 'fragment' : 'fragments'} in your archive
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-1 rounded-lg bg-white/5 p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={clsx(
+                    'p-2 rounded transition',
+                    viewMode === 'grid'
+                      ? 'bg-white/10 text-white'
+                      : 'text-white/40 hover:text-white/60'
+                  )}
+                >
+                  <Lucide.LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={clsx(
+                    'p-2 rounded transition',
+                    viewMode === 'list'
+                      ? 'bg-white/10 text-white'
+                      : 'text-white/40 hover:text-white/60'
+                  )}
+                >
+                  <Lucide.List className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition"
+              >
+                <Lucide.X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[200px]">
+              <Lucide.Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search fragments..."
+                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              />
+            </div>
+
+            {/* Section Filter */}
+            <select
+              value={filterSection}
+              onChange={(e) => setFilterSection(e.target.value)}
+              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="All">All Sections</option>
+              {sectionKeys.map(key => (
+                <option key={key} value={key}>{SECTIONS[key].label}</option>
+              ))}
+            </select>
+
+            {/* Book Filter */}
+            <select
+              value={filterBook}
+              onChange={(e) => setFilterBook(e.target.value)}
+              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              {books.map(book => (
+                <option key={book} value={book}>{book}</option>
+              ))}
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="All">All Status</option>
+              {FRAGMENT_STATUSES.map(status => (
+                <option key={status.id} value={status.id}>{status.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          {filteredFragments.length === 0 ? (
+            <div className="text-center py-16">
+              <Lucide.FileText className="h-16 w-16 text-white/20 mx-auto mb-4" />
+              <p className="text-white/50 text-lg">No fragments found</p>
+              <p className="text-white/30 text-sm mt-2">
+                {searchQuery ? 'Try a different search' : 'Start writing to create fragments'}
+              </p>
+            </div>
+          ) : (
+            <div className={clsx(
+              viewMode === 'grid'
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+                : 'space-y-3'
+            )}>
+              {filteredFragments.map((fragment) => (
+                <FragmentCard
+                  key={fragment.id}
+                  fragment={fragment}
+                  viewMode={viewMode}
+                  onEdit={() => handleEditFragment(fragment)}
+                  onUpdateStatus={handleUpdateStatus}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FragmentCard({ fragment, viewMode, onEdit, onUpdateStatus }) {
+  const section = SECTIONS[fragment.sectionTag];
+  const Icon = section ? Lucide[section.icon] : Lucide.FileText;
+  const statusColor = FRAGMENT_STATUSES.find(s => s.id === fragment.status)?.color || 'gray';
+
+  const preview = fragment.content.length > 150
+    ? fragment.content.slice(0, 150) + '...'
+    : fragment.content;
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={clsx(
+        'rounded-2xl border border-white/10 bg-white/5 p-4 hover:border-white/20 transition group cursor-pointer',
+        `border-l-4 border-l-${section?.color}-500/60`
+      )}
+      onClick={onEdit}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="h-4 w-4 text-white/60" />}
+          <span className="text-xs text-white/60">{section?.label}</span>
+        </div>
+        <span className={clsx(
+          'text-xs px-2 py-0.5 rounded-full',
+          `bg-${statusColor}-500/20 text-${statusColor}-300`
+        )}>
+          {fragment.status}
+        </span>
+      </div>
+
+      {/* Content Preview */}
+      <p className="text-white/80 text-sm leading-relaxed mb-3 line-clamp-4">
+        {preview}
+      </p>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between text-xs text-white/40">
+        <span className="truncate">{fragment.sourceBook}</span>
+        <span>Week {fragment.weekId}</span>
+      </div>
+    </motion.div>
+  );
+}

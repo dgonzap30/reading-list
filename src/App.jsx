@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Toaster, toast } from 'react-hot-toast';
 import * as Lucide from 'lucide-react';
 import { format } from 'date-fns';
-import { PLAN, DOMAIN, RED_THREADS, ENERGY_MATCHING } from './data/plan.js';
+import { PLAN, DOMAIN } from './data/plan.js';
 import { Header } from './components/Header.jsx';
 import { Toolbar } from './components/Toolbar.jsx';
-import { Timer } from './components/Timer.jsx';
+import { TimerFAB } from './components/TimerFAB.jsx';
 import { WeekCard } from './components/WeekCard.jsx';
 import { SessionRow } from './components/SessionRow.jsx';
 import { SipsAndSwaps } from './components/SipsAndSwaps.jsx';
@@ -16,17 +17,28 @@ import { FictionLibrary } from './components/FictionLibrary.jsx';
 import { CommandPalette } from './components/CommandPalette.jsx';
 import { Badges, computeBadges } from './components/Badges.jsx';
 import { SessionTicker } from './components/SessionTicker.jsx';
+import { FocusOverlay } from './components/FocusOverlay.jsx';
+import { Heatmap } from './components/Heatmap.jsx';
+import { FragmentDraftsHub } from './components/FragmentDraftsHub.jsx';
+import { StateCheck } from './components/StateCheck.jsx';
 
 import { usePersistentState } from './hooks/usePersistentState.js';
 import { diffWeeks, todayYMD, diffDays } from './utils/date.js';
 import { exportPlanToICS } from './utils/exportICS.js';
+import { createFragment } from './utils/fragmentHelpers.js';
 
 const createInitialState = () => ({
   checks: {},
-  notes: {},
-  weekNotes: {},
+  notes: {},              // Keep for backward compat
+  weekNotes: {},          // Keep for backward compat
   startDate: todayYMD(),
   activityDates: {},
+  _schemaVersion: 2,
+  writings: {},           // NEW: structured writing
+  stateChecks: {},        // NEW: pre-session state
+  fragments: {},          // NEW: polished fragments
+  weeklySummaries: {},    // NEW: weekly summaries
+  writingGoals: null,     // NEW: cycle goals
 });
 
 function StatCard({ icon: Icon, label, value, caption }) {
@@ -51,9 +63,11 @@ export default function App() {
   const [domain, setDomain] = useState('All');
   const [state, setState] = usePersistentState(createInitialState());
   const [cmdOpen, setCmdOpen] = useState(false);
-  const timerRef = useRef(null);
   const hasScrolledRef = useRef(false);
   const [sessionTicker, setSessionTicker] = useState(null);
+  const [fragmentsHubOpen, setFragmentsHubOpen] = useState(false);
+  const [stateCheckOpen, setStateCheckOpen] = useState(false);
+  const [pendingSession, setPendingSession] = useState(null);
 
   const totalSessions = useMemo(
     () => PLAN.weeks.reduce((acc, week) => acc + week.sessions.length, 0),
@@ -204,6 +218,12 @@ export default function App() {
             weekNotes: { ...prev.weekNotes, ...(data.state.weekNotes || {}) },
             startDate: data.state.startDate || prev.startDate || todayYMD(),
             activityDates: { ...prev.activityDates, ...(data.state.activityDates || {}) },
+            _schemaVersion: 2,
+            writings: { ...prev.writings, ...(data.state.writings || {}) },
+            stateChecks: { ...prev.stateChecks, ...(data.state.stateChecks || {}) },
+            fragments: { ...prev.fragments, ...(data.state.fragments || {}) },
+            weeklySummaries: { ...prev.weeklySummaries, ...(data.state.weeklySummaries || {}) },
+            writingGoals: data.state.writingGoals || prev.writingGoals,
           }));
           toast.success('Imported progress');
         }
@@ -287,12 +307,7 @@ export default function App() {
       caption: 'Auto-tracked from your start',
       icon: Lucide.Clock3,
     },
-    {
-      label: 'Active days',
-      value: daysActive,
-      caption: 'Touch the plan daily',
-      icon: Lucide.SunMedium,
-    },
+    // Active days replaced by Heatmap
     {
       label: 'This week',
       value: weekSessions ? `${weekDone}/${weekSessions}` : '—',
@@ -353,17 +368,46 @@ export default function App() {
   const saveNote = (id, text) =>
     setState((prev) => ({ ...prev, notes: { ...prev.notes, [id]: text } }));
 
+  const saveWriting = (sessionId, writing) => {
+    setState((prev) => {
+      const updates = { ...prev, writings: { ...prev.writings, [sessionId]: writing } };
+
+      // If fragment exists, create fragment entry
+      if (writing.fragment && writing.fragment.trim()) {
+        // Find the session to get book and week info
+        const session = PLAN.weeks.flatMap(w => w.sessions).find(s => s.id === sessionId);
+        const week = PLAN.weeks.find(w => w.sessions.some(s => s.id === sessionId));
+
+        if (session && week && writing.sectionTag) {
+          const fragment = createFragment(
+            sessionId,
+            writing.fragment,
+            writing.sectionTag,
+            session.book,
+            week.id
+          );
+          updates.fragments = { ...prev.fragments, [fragment.id]: fragment };
+        }
+      }
+
+      return updates;
+    });
+  };
+
+  const updateFragment = (fragmentId, updates) => {
+    setState((prev) => ({
+      ...prev,
+      fragments: {
+        ...prev.fragments,
+        [fragmentId]: { ...prev.fragments[fragmentId], ...updates },
+      },
+    }));
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-transparent text-white">
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 opacity-50"
-        aria-hidden
-      >
-        <div className="absolute -left-32 top-10 h-64 w-64 rounded-full bg-emerald-500/30 blur-[160px]" />
-        <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-sky-500/20 blur-[180px]" />
-        <div className="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-indigo-500/30 blur-[200px]" />
-      </div>
       <Toaster position="bottom-right" />
+
       <Header
         progress={progress}
         streak={streak}
@@ -377,141 +421,119 @@ export default function App() {
         onOpenCmd={() => setCmdOpen(true)}
         books={bookList}
         extraBooks={extraBooks}
+        notes={state.notes}
+        weeks={PLAN.weeks}
+        currentWeek={currentWeek}
+        onJumpToWeek={jumpToWeek}
+        fragments={state.fragments || {}}
+        onOpenFragments={() => setFragmentsHubOpen(true)}
       />
 
       <main className="pb-32">
-        <section className="mx-auto mt-8 w-full max-w-6xl px-4 md:px-6">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-white/20 to-white/[0.05] p-6 shadow-[0_30px_80px_rgba(2,6,23,0.65)]">
-              <div className="pointer-events-none absolute inset-0 opacity-70">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.35),_transparent_60%)] blur-3xl" />
-              </div>
-              <div className="relative space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {RED_THREADS.map((thread) => (
-                    <div key={thread.title} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-wider text-white/80 backdrop-blur-md">
-                      <span>{thread.emoji}</span>
-                      <span className="font-semibold">{thread.title}</span>
-                    </div>
-                  ))}
-                </div>
-                <h1 className="text-3xl font-semibold leading-tight text-white md:text-4xl">
+          <section className="mx-auto mt-8 w-full max-w-6xl px-4 md:px-6">
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 p-6 shadow-sm">
+              <div className="space-y-4">
+                <h1 className="text-2xl font-semibold leading-tight text-white md:text-3xl">
                   Craft a mind you trust — systems, EQ, craft, society, and sci‑fi in deliberate reps.
                 </h1>
 
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {ENERGY_MATCHING.map((item) => (
-                    <div key={item.label} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-xs">
-                      <span className="text-white/60">{item.label}</span>
-                      <span className="font-medium text-emerald-200">→ {item.action}</span>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between text-xs text-white/50 mb-2">
+                      <span>Overall Progress</span>
+                      <span>{heroPct}%</span>
                     </div>
-                  ))}
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between text-xs text-white/60">
-                    <span>Progress</span>
-                    <span>{heroPct}%</span>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-emerald-400"
+                        style={{ width: `${heroPct}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-violet-400"
-                      style={{ width: `${heroPct}%` }}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {statCards.slice(0, 2).map((card) => (
+                <StatCard key={card.label} {...card} />
+              ))}
+              <div>
+                <Heatmap activityDates={state.activityDates || {}} />
+              </div>
+              {statCards.slice(3).map((card) => (
+                <StatCard key={card.label} {...card} />
+              ))}
+            </div>
+          </section>
+
+
+
+          <Toolbar
+            query={query}
+            setQuery={setQuery}
+            domain={domain}
+            setDomain={setDomain}
+            currentWeek={currentWeek}
+            domains={domains}
+          />
+
+          <TodayCard plan={PLAN} state={state} currentWeek={currentWeek} scrollTo={scrollTo} />
+
+          <div className="mx-auto mt-8 grid w-full max-w-6xl gap-5 px-4 md:px-6">
+            {!isFlatView && <WeekZeroCard />}
+
+            {isFlatView ? (
+              <div className="space-y-4">
+                {filteredContent.length === 0 ? (
+                  <div className="text-center text-white/50 py-12">No sessions found matching your filter.</div>
+                ) : (
+                  filteredContent.map(session => (
+                    <SessionRow
+                      key={session.id}
+                      session={session}
+                      checked={Boolean(state.checks[session.id])}
+                      note={state.notes[session.id]}
+                      writing={state.writings?.[session.id]}
+                      onToggle={toggleSession}
+                      onSaveNote={saveNote}
+                      onSaveWriting={saveWriting}
+                      onStartTimer={handleStartSessionTimer}
                     />
-                  </div>
-                </div>
+                  ))
+                )}
               </div>
-            </div>
-            <div ref={timerRef}>
-              <Timer
-                onComplete={onTimerComplete}
-                activeSession={sessionTicker}
-                onStartBlock={(seconds) =>
-                  setSessionTicker({
-                    sessionId: 'manual',
-                    label: 'Custom block',
-                    duration: seconds,
-                    remaining: seconds,
-                    endsAt: Date.now() + seconds * 1000,
-                    minutes: Math.round(seconds / 60),
-                  })
-                }
-                onClearBlock={() => setSessionTicker(null)}
-              />
-            </div>
-          </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {statCards.map((card) => (
-              <StatCard key={card.label} {...card} />
-            ))}
-          </div>
-        </section>
-
-
-
-        <Toolbar
-          query={query}
-          setQuery={setQuery}
-          domain={domain}
-          setDomain={setDomain}
-          currentWeek={currentWeek}
-          domains={domains}
-        />
-
-        <TodayCard plan={PLAN} state={state} currentWeek={currentWeek} scrollTo={scrollTo} />
-
-        <div className="mx-auto mt-8 grid w-full max-w-6xl gap-5 px-4 md:px-6">
-          {!isFlatView && <WeekZeroCard />}
-
-          {isFlatView ? (
-            <div className="space-y-4">
-              {filteredContent.length === 0 ? (
-                <div className="text-center text-white/50 py-12">No sessions found matching your filter.</div>
-              ) : (
-                filteredContent.map(session => (
-                  <SessionRow
-                    key={session.id}
-                    session={session}
-                    checked={Boolean(state.checks[session.id])}
-                    note={state.notes[session.id]}
-                    onToggle={toggleSession}
-                    onSaveNote={saveNote}
+            ) : (
+              filteredContent.map((week) => (
+                <div key={week.id} id={`week-${week.id}`} className="scroll-mt-28 md:scroll-mt-32">
+                  <WeekCard
+                    week={week}
+                    state={state}
+                    setState={setState}
+                    isCurrent={week.id === currentWeek}
+                    expanded={expandedWeeks.has(week.id)}
+                    onToggle={() => toggleWeekExpansion(week.id)}
                     onStartTimer={handleStartSessionTimer}
+                    onToggleSession={toggleSession}
+                    onSaveNote={saveNote}
+                    onSaveWriting={saveWriting}
                   />
-                ))
-              )}
-            </div>
-          ) : (
-            filteredContent.map((week) => (
-              <div key={week.id} id={`week-${week.id}`} className="scroll-mt-28 md:scroll-mt-32">
-                <WeekCard
-                  week={week}
-                  state={state}
-                  setState={setState}
-                  isCurrent={week.id === currentWeek}
-                  expanded={expandedWeeks.has(week.id)}
-                  onToggle={() => toggleWeekExpansion(week.id)}
-                  onStartTimer={handleStartSessionTimer}
-                  onToggleSession={toggleSession}
-                  onSaveNote={saveNote}
-                />
-              </div>
-            ))
-          )}
-        </div>
+                </div>
+              ))
+            )}
+          </div>
 
-        <Badges badges={badges} />
+          <Badges badges={badges} />
 
-        <div className="mx-auto mt-16 max-w-4xl px-6">
-          <FictionLibrary />
-        </div>
+          <div className="mx-auto mt-16 max-w-4xl px-6">
+            <FictionLibrary />
+          </div>
 
-        <SipsAndSwaps plan={PLAN} />
+          <SipsAndSwaps plan={PLAN} />
       </main>
 
       <div className="fixed bottom-0 inset-x-0 z-40 md:hidden">
         <div className="mx-auto max-w-5xl">
-          <div className="m-3 rounded-2xl bg-neutral-900/90 border border-neutral-800 backdrop-blur px-3 py-2 flex items-center justify-between">
+          <div className="m-3 rounded-2xl bg-[#030711]/90 border border-white/10 backdrop-blur-xl px-3 py-2 flex items-center justify-between">
             <button
               onClick={() => document.querySelector(`#week-${currentWeek}`)?.scrollIntoView({ behavior: 'smooth' })}
               className="px-3 py-1.5 rounded-xl bg-neutral-800 text-sm flex items-center gap-1"
@@ -530,18 +552,6 @@ export default function App() {
             >
               Cmd
             </button>
-            <button
-              onClick={() => {
-                if (timerRef.current) {
-                  timerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                  toast('Focus coach is near the top of the page.', { icon: '⏱️' });
-                }
-              }}
-              className="px-3 py-1.5 rounded-xl bg-neutral-800 text-sm flex items-center gap-1"
-            >
-              Timer
-            </button>
           </div>
         </div>
       </div>
@@ -555,6 +565,60 @@ export default function App() {
       />
 
       <SessionTicker ticker={sessionTicker} onStop={() => setSessionTicker(null)} />
+
+      <AnimatePresence>
+        {sessionTicker && (
+          <FocusOverlay
+            sessionTicker={sessionTicker}
+            onStop={() => setSessionTicker(null)}
+            onSaveNote={saveNote}
+            initialNote={sessionTicker.sessionId !== 'manual' ? state.notes[sessionTicker.sessionId] : ''}
+          />
+        )}
+      </AnimatePresence>
+
+      <FragmentDraftsHub
+        isOpen={fragmentsHubOpen}
+        onClose={() => setFragmentsHubOpen(false)}
+        fragments={state.fragments || {}}
+        writings={state.writings || {}}
+        onUpdateFragment={updateFragment}
+      />
+
+      <StateCheck
+        isOpen={stateCheckOpen}
+        onSelect={(selectedState) => {
+          if (pendingSession) {
+            setState((prev) => ({
+              ...prev,
+              stateChecks: { ...prev.stateChecks, [pendingSession.id]: selectedState },
+            }));
+          }
+          setStateCheckOpen(false);
+          setPendingSession(null);
+        }}
+        onSkip={() => {
+          setStateCheckOpen(false);
+          setPendingSession(null);
+        }}
+        sessionLabel={pendingSession?.book}
+      />
+
+      <TimerFAB
+        onComplete={onTimerComplete}
+        activeSession={sessionTicker}
+        onStartBlock={(seconds) =>
+          setSessionTicker({
+            sessionId: 'manual',
+            label: 'Custom block',
+            duration: seconds,
+            remaining: seconds,
+            endsAt: Date.now() + seconds * 1000,
+            minutes: Math.round(seconds / 60),
+          })
+        }
+        onClearBlock={() => setSessionTicker(null)}
+      />
     </div>
   );
 }
