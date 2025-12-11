@@ -1,7 +1,7 @@
 /**
  * Create a new fragment from session writing
  */
-export function createFragment(sessionId, content, sectionTag, book, weekId) {
+export function createFragment(sessionId, content, sectionTag, book, weekId, sourceType = 'nonfiction', sourceChapter = null, sourcePage = null) {
   const id = `frag-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const now = new Date().toISOString();
 
@@ -11,6 +11,9 @@ export function createFragment(sessionId, content, sectionTag, book, weekId) {
     status: 'Needs Work',
     sourceSessionId: sessionId,
     sourceBook: book,
+    sourceType,
+    sourceChapter,
+    sourcePage,
     sectionTag,
     weekId,
     createdAt: now,
@@ -78,6 +81,15 @@ export function getFragmentStats(fragments) {
       return acc;
     }, {}),
   };
+}
+
+/**
+ * Get fragments by source type (fiction or nonfiction)
+ */
+export function getFragmentsBySourceType(fragments, sourceType) {
+  return Object.values(fragments)
+    .filter(f => f.sourceType === sourceType && f.status !== 'Discard')
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 /**

@@ -22,17 +22,14 @@ export function TodayCard({ plan, state, currentWeek, scrollTo }) {
 
   return (
     <div className="mx-auto mt-6 w-full max-w-6xl px-4 md:px-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/15 to-white/[0.02] p-5 shadow-[0_25px_60px_rgba(2,6,23,0.55)]">
-        <div className="pointer-events-none absolute inset-0 opacity-70">
-          <div className={`absolute inset-0 bg-gradient-to-r ${theme.halo}`} />
-        </div>
+      <div className="relative overflow-hidden rounded-xl border border-white/20 bg-black p-5 shadow-sm">
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center">
           <div className="flex flex-1 items-start gap-4">
-            <div className="rounded-2xl border border-white/15 bg-white/10 p-3 text-emerald-200">
+            <div className="rounded-xl border border-white/15 bg-white/[0.03] p-3 text-white/60">
               <Icon className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60">Today’s focus</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/60">Today's focus</p>
               <p className="text-2xl font-semibold text-white">{next.book}</p>
               <p className="text-sm text-white/70">{next.details}</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/75">
@@ -45,7 +42,7 @@ export function TodayCard({ plan, state, currentWeek, scrollTo }) {
           <div className="flex flex-col gap-2 md:items-end">
             <button
               onClick={() => scrollTo(next.id)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-50 shadow-[0_12px_35px_rgba(16,185,129,0.35)] transition hover:bg-emerald-500/30"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500/20"
             >
               <Lucide.Navigation className="h-4 w-4" />
               Jump to session

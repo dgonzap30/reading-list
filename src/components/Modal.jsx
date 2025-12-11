@@ -47,13 +47,13 @@ export function Modal({ isOpen, onClose, title, children, prompt, size = 'defaul
                             className={clsx('w-full pointer-events-auto flex flex-col', sizeClasses[size])}
                             style={{ maxHeight: 'calc(100vh - 2rem)' }}
                         >
-                            <div className="relative flex flex-col rounded-3xl border border-white/10 bg-[#0A0A0A] shadow-2xl overflow-hidden">
+                            <div className="relative flex flex-col rounded-xl border border-white/20 bg-black shadow-2xl overflow-hidden">
                                 {/* Header */}
                                 <div className="flex items-center justify-between border-b border-white/5 px-6 py-4 shrink-0">
                                     <h3 className="text-lg font-semibold text-white">{title}</h3>
                                     <button
                                         onClick={onClose}
-                                        className="rounded-full p-2 text-white/50 transition hover:bg-white/5 hover:text-white"
+                                        className="rounded-full p-2 text-white/50 transition hover:bg-black hover:text-white"
                                     >
                                         <Lucide.X className="h-5 w-5" />
                                     </button>
@@ -62,12 +62,12 @@ export function Modal({ isOpen, onClose, title, children, prompt, size = 'defaul
                                 {/* Content - Scrollable */}
                                 <div className="p-6 overflow-y-auto flex-1">
                                     {prompt && (
-                                        <div className="mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4">
+                                        <div className="mb-4 rounded-xl bg-black border border-white/20 p-4">
                                             <div className="flex items-start gap-3">
-                                                <Lucide.Sparkles className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                                                <Lucide.Sparkles className="h-5 w-5 text-white/50 shrink-0 mt-0.5" />
                                                 <div>
-                                                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">Spark</p>
-                                                    <p className="text-emerald-100/90 text-sm leading-relaxed">{prompt}</p>
+                                                    <p className="text-xs font-bold uppercase tracking-wider text-white/50 mb-1">Spark</p>
+                                                    <p className="text-white/80 text-sm leading-relaxed">{prompt}</p>
                                                 </div>
                                             </div>
                                         </div>

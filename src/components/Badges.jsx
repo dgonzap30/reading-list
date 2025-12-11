@@ -18,13 +18,10 @@ export function Badges({ badges }) {
   if (!badges.length) return null;
   return (
     <div className="mx-auto mt-10 w-full max-w-6xl px-4 md:px-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/15 to-white/[0.03] p-5 shadow-[0_25px_60px_rgba(2,6,23,0.55)]">
-        <div className="pointer-events-none absolute inset-0 opacity-60">
-          <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle,_rgba(251,191,36,0.25),_transparent_60%)] blur-2xl" />
-        </div>
+      <div className="relative overflow-hidden rounded-xl border border-white/20 bg-black p-5 shadow-sm">
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2 text-white">
-            <Lucide.Medal className="h-5 w-5 text-amber-300" />
+            <Lucide.Medal className="h-5 w-5 text-white/50" />
             <span className="text-lg font-semibold">Badge cabinet</span>
             <span className="text-xs text-white/60">Unlocked: {badges.length}</span>
           </div>
@@ -32,9 +29,9 @@ export function Badges({ badges }) {
             {badges.map((badge, index) => (
               <div
                 key={badge.name + index}
-                className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4"
+                className="flex items-start gap-3 rounded-xl border border-white/20 bg-black p-4"
               >
-                <div className="rounded-2xl border border-white/10 bg-white/10 p-3 text-amber-200">
+                <div className="rounded-xl border border-white/20 bg-white/[0.03] p-3 text-white/50">
                   <badge.icon className="h-5 w-5" />
                 </div>
                 <div>

@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import { Toaster, toast } from 'react-hot-toast';
 import * as Lucide from 'lucide-react';
 import { format } from 'date-fns';
-import { PLAN, DOMAIN } from './data/plan.js';
+import { PLAN, DOMAIN, FICTION_LIBRARY } from './data/plan.js';
 import { Header } from './components/Header.jsx';
 import { Toolbar } from './components/Toolbar.jsx';
 import { TimerFAB } from './components/TimerFAB.jsx';
@@ -13,7 +13,6 @@ import { SessionRow } from './components/SessionRow.jsx';
 import { SipsAndSwaps } from './components/SipsAndSwaps.jsx';
 import { TodayCard } from './components/TodayCard.jsx';
 import { WeekZeroCard } from './components/WeekZeroCard.jsx';
-import { FictionLibrary } from './components/FictionLibrary.jsx';
 import { CommandPalette } from './components/CommandPalette.jsx';
 import { Badges, computeBadges } from './components/Badges.jsx';
 import { SessionTicker } from './components/SessionTicker.jsx';
@@ -21,6 +20,7 @@ import { FocusOverlay } from './components/FocusOverlay.jsx';
 import { Heatmap } from './components/Heatmap.jsx';
 import { FragmentDraftsHub } from './components/FragmentDraftsHub.jsx';
 import { StateCheck } from './components/StateCheck.jsx';
+import { BookLibrary } from './components/BookLibrary.jsx';
 
 import { usePersistentState } from './hooks/usePersistentState.js';
 import { diffWeeks, todayYMD, diffDays } from './utils/date.js';
@@ -39,19 +39,20 @@ const createInitialState = () => ({
   fragments: {},          // NEW: polished fragments
   weeklySummaries: {},    // NEW: weekly summaries
   writingGoals: null,     // NEW: cycle goals
+  fictionSwaps: {},       // NEW: weekId -> 'runnerUp' | null
 });
 
 function StatCard({ icon: Icon, label, value, caption }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_15px_40px_rgba(2,6,23,0.45)]">
-      <div className="flex items-center gap-3">
-        <div className="rounded-2xl border border-white/10 bg-white/10 p-3 text-emerald-200">
+    <div className="rounded-xl border border-white/20 bg-black p-5 shadow-sm">
+      <div className="flex items-center gap-4">
+        <div className="rounded-xl border border-white/20 bg-white/[0.03] p-3.5 text-white/60">
           <Icon className="h-5 w-5" />
         </div>
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-white/60">{label}</p>
-          <p className="text-xl font-semibold text-white">{value}</p>
-          <p className="text-sm text-white/60">{caption}</p>
+        <div className="flex-1">
+          <p className="text-xs uppercase tracking-[0.3em] text-white/50">{label}</p>
+          <p className="text-2xl font-semibold text-white">{value}</p>
+          <p className="text-sm text-white/50">{caption}</p>
         </div>
       </div>
     </div>
@@ -66,6 +67,7 @@ export default function App() {
   const hasScrolledRef = useRef(false);
   const [sessionTicker, setSessionTicker] = useState(null);
   const [fragmentsHubOpen, setFragmentsHubOpen] = useState(false);
+  const [booksModalOpen, setBooksModalOpen] = useState(false);
   const [stateCheckOpen, setStateCheckOpen] = useState(false);
   const [pendingSession, setPendingSession] = useState(null);
 
@@ -374,19 +376,51 @@ export default function App() {
 
       // If fragment exists, create fragment entry
       if (writing.fragment && writing.fragment.trim()) {
-        // Find the session to get book and week info
-        const session = PLAN.weeks.flatMap(w => w.sessions).find(s => s.id === sessionId);
-        const week = PLAN.weeks.find(w => w.sessions.some(s => s.id === sessionId));
+        // Check if it's a fiction session
+        const isFictionSession = sessionId.includes('-fiction');
 
-        if (session && week && writing.sectionTag) {
-          const fragment = createFragment(
-            sessionId,
-            writing.fragment,
-            writing.sectionTag,
-            session.book,
-            week.id
-          );
-          updates.fragments = { ...prev.fragments, [fragment.id]: fragment };
+        if (isFictionSession) {
+          // Handle fiction session
+          const weekId = parseInt(sessionId.replace('w', '').replace('-fiction', ''));
+          const week = PLAN.weeks.find(w => w.id === weekId);
+
+          if (week && week.fiction && writing.sectionTag) {
+            // Check if fiction was swapped
+            const isSwapped = prev.fictionSwaps?.[weekId] === 'runnerUp';
+            const bookTitle = isSwapped && week.fiction.runnerUp
+              ? week.fiction.runnerUp
+              : week.fiction.title;
+
+            const fragment = createFragment(
+              sessionId,
+              writing.fragment,
+              writing.sectionTag,
+              bookTitle,
+              week.id,
+              'fiction',
+              writing.sourceChapter,
+              writing.sourcePage
+            );
+            updates.fragments = { ...prev.fragments, [fragment.id]: fragment };
+          }
+        } else {
+          // Handle nonfiction session
+          const session = PLAN.weeks.flatMap(w => w.sessions).find(s => s.id === sessionId);
+          const week = PLAN.weeks.find(w => w.sessions.some(s => s.id === sessionId));
+
+          if (session && week && writing.sectionTag) {
+            const fragment = createFragment(
+              sessionId,
+              writing.fragment,
+              writing.sectionTag,
+              session.book,
+              week.id,
+              'nonfiction',
+              writing.sourceChapter,
+              writing.sourcePage
+            );
+            updates.fragments = { ...prev.fragments, [fragment.id]: fragment };
+          }
         }
       }
 
@@ -402,6 +436,19 @@ export default function App() {
         [fragmentId]: { ...prev.fragments[fragmentId], ...updates },
       },
     }));
+  };
+
+  const swapFiction = (weekId) => {
+    setState((prev) => {
+      const currentSwap = prev.fictionSwaps?.[weekId];
+      return {
+        ...prev,
+        fictionSwaps: {
+          ...prev.fictionSwaps,
+          [weekId]: currentSwap === 'runnerUp' ? null : 'runnerUp'
+        }
+      };
+    });
   };
 
   return (
@@ -427,11 +474,12 @@ export default function App() {
         onJumpToWeek={jumpToWeek}
         fragments={state.fragments || {}}
         onOpenFragments={() => setFragmentsHubOpen(true)}
+        onOpenBooks={() => setBooksModalOpen(true)}
       />
 
       <main className="pb-32">
           <section className="mx-auto mt-8 w-full max-w-6xl px-4 md:px-6">
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 p-6 shadow-sm">
+            <div className="overflow-hidden rounded-xl border border-white/20 bg-black p-6 shadow-sm">
               <div className="space-y-4">
                 <h1 className="text-2xl font-semibold leading-tight text-white md:text-3xl">
                   Craft a mind you trust — systems, EQ, craft, society, and sci‑fi in deliberate reps.
@@ -443,7 +491,7 @@ export default function App() {
                       <span>Overall Progress</span>
                       <span>{heroPct}%</span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.08]">
                       <div
                         className="h-full rounded-full bg-emerald-400"
                         style={{ width: `${heroPct}%` }}
@@ -453,16 +501,16 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {statCards.slice(0, 2).map((card) => (
+            {/* Stat Cards Grid */}
+            <div className="mt-4 grid gap-4 grid-cols-2 lg:grid-cols-4">
+              {statCards.map((card) => (
                 <StatCard key={card.label} {...card} />
               ))}
-              <div>
-                <Heatmap activityDates={state.activityDates || {}} />
-              </div>
-              {statCards.slice(3).map((card) => (
-                <StatCard key={card.label} {...card} />
-              ))}
+            </div>
+
+            {/* Heatmap - Full Width */}
+            <div className="mt-4">
+              <Heatmap activityDates={state.activityDates || {}} />
             </div>
           </section>
 
@@ -516,6 +564,7 @@ export default function App() {
                     onToggleSession={toggleSession}
                     onSaveNote={saveNote}
                     onSaveWriting={saveWriting}
+                    onSwapFiction={swapFiction}
                   />
                 </div>
               ))
@@ -524,31 +573,27 @@ export default function App() {
 
           <Badges badges={badges} />
 
-          <div className="mx-auto mt-16 max-w-4xl px-6">
-            <FictionLibrary />
-          </div>
-
           <SipsAndSwaps plan={PLAN} />
       </main>
 
       <div className="fixed bottom-0 inset-x-0 z-40 md:hidden">
         <div className="mx-auto max-w-5xl">
-          <div className="m-3 rounded-2xl bg-[#030711]/90 border border-white/10 backdrop-blur-xl px-3 py-2 flex items-center justify-between">
+          <div className="m-3 rounded-2xl bg-black/90 border border-white/20 backdrop-blur-xl px-3 py-2 flex items-center justify-between">
             <button
               onClick={() => document.querySelector(`#week-${currentWeek}`)?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-3 py-1.5 rounded-xl bg-neutral-800 text-sm flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-white/[0.03] text-sm flex items-center gap-1 hover:bg-white/[0.05]"
             >
               Week
             </button>
             <button
               onClick={() => document.querySelector('#search')?.focus()}
-              className="px-3 py-1.5 rounded-xl bg-neutral-800 text-sm flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-white/[0.03] text-sm flex items-center gap-1 hover:bg-white/[0.05]"
             >
               Search
             </button>
             <button
               onClick={() => setCmdOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-neutral-800 text-sm flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-white/[0.03] text-sm flex items-center gap-1 hover:bg-white/[0.05]"
             >
               Cmd
             </button>
@@ -583,6 +628,14 @@ export default function App() {
         fragments={state.fragments || {}}
         writings={state.writings || {}}
         onUpdateFragment={updateFragment}
+      />
+
+      <BookLibrary
+        isOpen={booksModalOpen}
+        onClose={() => setBooksModalOpen(false)}
+        books={bookList}
+        phases={PLAN.phases}
+        fictionLibrary={FICTION_LIBRARY}
       />
 
       <StateCheck

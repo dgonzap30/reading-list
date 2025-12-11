@@ -49,15 +49,15 @@ export function ReviewModal({ isOpen, onClose, notes }) {
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             className="w-full max-w-lg pointer-events-auto"
                         >
-                            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] shadow-2xl">
+                            <div className="relative overflow-hidden rounded-xl border border-white/20 bg-black shadow-2xl">
                                 <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
                                     <div className="flex items-center gap-2">
-                                        <div className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-300">
+                                        <div className="p-1.5 rounded-lg bg-white/[0.03] text-white/50">
                                             <Lucide.Repeat className="h-4 w-4" />
                                         </div>
                                         <h3 className="text-lg font-semibold text-white">Spaced Review</h3>
                                     </div>
-                                    <button onClick={onClose} className="rounded-full p-2 text-white/50 hover:bg-white/5 hover:text-white">
+                                    <button onClick={onClose} className="rounded-full p-2 text-white/50 hover:bg-black hover:text-white">
                                         <Lucide.X className="h-5 w-5" />
                                     </button>
                                 </div>
@@ -72,14 +72,14 @@ export function ReviewModal({ isOpen, onClose, notes }) {
                                             </div>
 
                                             <div className="relative">
-                                                <div className="absolute -left-3 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500/50 to-transparent rounded-full" />
+                                                <div className="absolute -left-3 top-0 bottom-0 w-1 bg-gradient-to-b from-white/20 to-transparent rounded-full" />
                                                 <div className="pl-4">
                                                     <p className="text-white/90 italic leading-relaxed">"{reviewItem.note}"</p>
                                                 </div>
                                             </div>
 
                                             <div className="pt-4 border-t border-white/5">
-                                                <p className="text-sm font-medium text-indigo-300 mb-2">Reflection Prompt</p>
+                                                <p className="text-sm font-medium text-white/60 mb-2">Reflection Prompt</p>
                                                 <p className="text-white/70 text-sm">How does this insight apply to your current challenges today?</p>
                                             </div>
                                         </div>

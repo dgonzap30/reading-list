@@ -49,8 +49,8 @@ export function SectionSelector({ selected, onSelect, suggestions = [], classNam
                   `border-2 border-${section.color}-500/60`,
                   `ring-2 ring-${section.color}-500/20`,
                 ] : [
-                  'bg-white/5 text-white/70 border border-white/10',
-                  'hover:bg-white/10 hover:border-white/20',
+                  'bg-black text-white/70 border border-white/20',
+                  'hover:bg-white/[0.03] hover:border-white/20',
                 ],
                 suggested && !isSelected && 'ring-2 ring-emerald-500/30 border-emerald-500/50'
               )}

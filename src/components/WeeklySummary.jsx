@@ -97,7 +97,7 @@ export function WeeklySummary({
             value={reflection}
             onChange={(e) => setReflection(e.target.value)}
             placeholder="Reflect on how your thinking evolved this week..."
-            className="w-full min-h-[120px] p-4 rounded-xl bg-black/30 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none text-sm leading-relaxed"
+            className="w-full min-h-[120px] p-4 rounded-xl bg-black/30 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none text-sm leading-relaxed"
             rows={5}
           />
         </div>
@@ -117,10 +117,7 @@ export function WeeklySummary({
                 return (
                   <div
                     key={fragment.id}
-                    className={clsx(
-                      'p-3 rounded-xl bg-white/5 border',
-                      `border-${section?.color}-500/20`
-                    )}
+                    className="p-3 rounded-xl bg-black border border-white/20"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       {Icon && <Icon className="h-3 w-3 text-white/40" />}
@@ -149,7 +146,7 @@ export function WeeklySummary({
               {detectedThemes.map((theme) => (
                 <span
                   key={theme}
-                  className="px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs"
+                  className="px-3 py-1 rounded-full bg-black border border-white/20 text-white/60 text-xs"
                 >
                   {theme}
                 </span>
@@ -170,7 +167,7 @@ export function WeeklySummary({
               onChange={(e) => setNewTheme(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddTheme()}
               placeholder="e.g., responsibility, control..."
-              className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="flex-1 px-3 py-2 rounded-lg bg-black border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
             <button
               type="button"
@@ -207,7 +204,7 @@ export function WeeklySummary({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-white/10 text-white/70 hover:bg-white/5 transition"
+            className="px-4 py-2 rounded-xl border border-white/20 text-white/70 hover:bg-black transition"
           >
             Cancel
           </button>

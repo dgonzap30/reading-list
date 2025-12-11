@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as Lucide from 'lucide-react';
 import clsx from 'clsx';
 import { SECTIONS, FRAGMENT_STATUSES } from '../data/sections.js';
-import { getActiveFragments, searchFragments } from '../utils/fragmentHelpers.js';
+import { getActiveFragments, searchFragments, getFragmentsBySourceType } from '../utils/fragmentHelpers.js';
 
 export function FragmentDraftsHub({
   isOpen,
@@ -15,6 +15,7 @@ export function FragmentDraftsHub({
   const [filterSection, setFilterSection] = useState('All');
   const [filterBook, setFilterBook] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [filterSourceType, setFilterSourceType] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [selectedFragment, setSelectedFragment] = useState(null);
@@ -43,8 +44,12 @@ export function FragmentDraftsHub({
       result = result.filter(f => f.status === filterStatus);
     }
 
+    if (filterSourceType !== 'All') {
+      result = result.filter(f => f.sourceType === filterSourceType);
+    }
+
     return result;
-  }, [fragments, filterSection, filterBook, filterStatus, searchQuery]);
+  }, [fragments, filterSection, filterBook, filterStatus, filterSourceType, searchQuery]);
 
   const handleUpdateStatus = (fragmentId, newStatus) => {
     onUpdateFragment(fragmentId, { status: newStatus, updatedAt: new Date().toISOString() });
@@ -60,14 +65,14 @@ export function FragmentDraftsHub({
   const totalCount = Object.values(fragments).filter(f => f.status !== 'Discard').length;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0A0A0A]">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black">
       {/* Header */}
-      <div className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
+      <div className="border-b border-white/20 bg-black/40 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
-                <Lucide.FileEdit className="h-6 w-6 text-amber-400" />
+                <Lucide.FileEdit className="h-6 w-6 text-white/50" />
                 Fragment Drafts
               </h1>
               <p className="text-white/60 text-sm mt-1">
@@ -76,13 +81,13 @@ export function FragmentDraftsHub({
             </div>
             <div className="flex items-center gap-3">
               {/* View Mode Toggle */}
-              <div className="flex items-center gap-1 rounded-lg bg-white/5 p-1">
+              <div className="flex items-center gap-1 rounded-lg bg-black p-1">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={clsx(
                     'p-2 rounded transition',
                     viewMode === 'grid'
-                      ? 'bg-white/10 text-white'
+                      ? 'bg-white/[0.03] text-white'
                       : 'text-white/40 hover:text-white/60'
                   )}
                 >
@@ -93,7 +98,7 @@ export function FragmentDraftsHub({
                   className={clsx(
                     'p-2 rounded transition',
                     viewMode === 'list'
-                      ? 'bg-white/10 text-white'
+                      ? 'bg-white/[0.03] text-white'
                       : 'text-white/40 hover:text-white/60'
                   )}
                 >
@@ -104,7 +109,7 @@ export function FragmentDraftsHub({
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition"
+                className="p-2 rounded-lg hover:bg-white/[0.03] text-white/60 hover:text-white transition"
               >
                 <Lucide.X className="h-5 w-5" />
               </button>
@@ -121,7 +126,7 @@ export function FragmentDraftsHub({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search fragments..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full pl-10 pr-4 py-2 rounded-lg bg-black border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
               />
             </div>
 
@@ -129,7 +134,7 @@ export function FragmentDraftsHub({
             <select
               value={filterSection}
               onChange={(e) => setFilterSection(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 rounded-lg bg-black border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="All">All Sections</option>
               {sectionKeys.map(key => (
@@ -141,7 +146,7 @@ export function FragmentDraftsHub({
             <select
               value={filterBook}
               onChange={(e) => setFilterBook(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 rounded-lg bg-black border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               {books.map(book => (
                 <option key={book} value={book}>{book}</option>
@@ -152,12 +157,23 @@ export function FragmentDraftsHub({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 rounded-lg bg-black border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="All">All Status</option>
               {FRAGMENT_STATUSES.map(status => (
                 <option key={status.id} value={status.id}>{status.label}</option>
               ))}
+            </select>
+
+            {/* Source Type Filter */}
+            <select
+              value={filterSourceType}
+              onChange={(e) => setFilterSourceType(e.target.value)}
+              className="px-3 py-2 rounded-lg bg-black border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="All">All Sources</option>
+              <option value="fiction">Fiction</option>
+              <option value="nonfiction">Nonfiction</option>
             </select>
           </div>
         </div>
@@ -212,16 +228,26 @@ function FragmentCard({ fragment, viewMode, onEdit, onUpdateStatus }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={clsx(
-        'rounded-2xl border border-white/10 bg-white/5 p-4 hover:border-white/20 transition group cursor-pointer',
+        'rounded-xl border border-white/20 bg-black p-4 hover:border-white/20 transition group cursor-pointer',
         `border-l-4 border-l-${section?.color}-500/60`
       )}
       onClick={onEdit}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {Icon && <Icon className="h-4 w-4 text-white/60" />}
           <span className="text-xs text-white/60">{section?.label}</span>
+          {fragment.sourceType && (
+            <span className={clsx(
+              'text-[10px] px-2 py-0.5 rounded-full',
+              fragment.sourceType === 'fiction'
+                ? 'bg-emerald-500/20 text-emerald-300'
+                : 'bg-emerald-500/20 text-emerald-300'
+            )}>
+              {fragment.sourceType === 'fiction' ? 'Fiction' : 'Nonfiction'}
+            </span>
+          )}
         </div>
         <span className={clsx(
           'text-xs px-2 py-0.5 rounded-full',
@@ -237,9 +263,18 @@ function FragmentCard({ fragment, viewMode, onEdit, onUpdateStatus }) {
       </p>
 
       {/* Footer */}
-      <div className="flex items-center justify-between text-xs text-white/40">
-        <span className="truncate">{fragment.sourceBook}</span>
-        <span>Week {fragment.weekId}</span>
+      <div className="flex flex-col gap-1 text-xs text-white/40">
+        <div className="flex items-center justify-between">
+          <span className="truncate">{fragment.sourceBook}</span>
+          <span>Week {fragment.weekId}</span>
+        </div>
+        {(fragment.sourceChapter || fragment.sourcePage) && (
+          <div className="flex items-center gap-2 text-[11px] text-white/30">
+            {fragment.sourceChapter && <span>{fragment.sourceChapter}</span>}
+            {fragment.sourceChapter && fragment.sourcePage && <span>•</span>}
+            {fragment.sourcePage && <span>{fragment.sourcePage}</span>}
+          </div>
+        )}
       </div>
     </motion.div>
   );

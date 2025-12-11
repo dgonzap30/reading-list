@@ -12,7 +12,7 @@ export function Navigation({
     return (
         <>
             {/* Desktop Sidebar */}
-            <div className="hidden lg:block fixed left-8 top-8 bottom-8 w-64 rounded-[28px] border border-white/10 bg-[#030711]/80 backdrop-blur-xl p-6 shadow-2xl overflow-y-auto z-50">
+            <div className="hidden lg:block fixed left-8 top-8 bottom-8 w-64 rounded-xl border border-white/20 bg-black/80 backdrop-blur-xl p-6 shadow-2xl overflow-y-auto z-50">
                 <div className="space-y-6">
                     <div>
                         <h2 className="text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-4">Navigation</h2>
@@ -27,7 +27,7 @@ export function Navigation({
                                         onClick={() => onJumpToWeek(week.id)}
                                         className={clsx(
                                             'w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all group',
-                                            isCurrent ? 'bg-emerald-500/20 text-emerald-200' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                                            isCurrent ? 'bg-emerald-500/20 text-emerald-200' : 'text-white/60 hover:bg-black hover:text-white'
                                         )}
                                     >
                                         <span className="font-medium">Week {week.id}</span>
@@ -46,7 +46,7 @@ export function Navigation({
                         <h2 className="text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-4">Controls</h2>
                         <button
                             onClick={onToggleAll}
-                            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white/60 hover:bg-white/5 hover:text-white transition-all"
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white/60 hover:bg-black hover:text-white transition-all"
                         >
                             {allExpanded ? (
                                 <>

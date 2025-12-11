@@ -14,7 +14,8 @@ export function WritingPanel({
   domain,
   existingWriting,
   onSave,
-  quote
+  quote,
+  sourceType = 'nonfiction'
 }) {
   const [idea, setIdea] = useState('');
   const [question, setQuestion] = useState('');
@@ -23,6 +24,8 @@ export function WritingPanel({
   const [fragment, setFragment] = useState('');
   const [showFragment, setShowFragment] = useState(false);
   const [showQuote, setShowQuote] = useState(true);
+  const [sourceChapter, setSourceChapter] = useState('');
+  const [sourcePage, setSourcePage] = useState('');
 
   // Load existing writing
   useEffect(() => {
@@ -33,6 +36,8 @@ export function WritingPanel({
       setSectionTag(existingWriting.sectionTag || null);
       setFragment(existingWriting.fragment || '');
       setShowFragment(!!existingWriting.fragment);
+      setSourceChapter(existingWriting.sourceChapter || '');
+      setSourcePage(existingWriting.sourcePage || '');
     } else {
       // Reset when opening new writing
       setIdea('');
@@ -41,6 +46,8 @@ export function WritingPanel({
       setSectionTag(null);
       setFragment('');
       setShowFragment(false);
+      setSourceChapter('');
+      setSourcePage('');
     }
   }, [existingWriting, sessionId]);
 
@@ -67,6 +74,9 @@ export function WritingPanel({
       application: application.trim(),
       sectionTag,
       fragment: fragment.trim(),
+      sourceType,
+      sourceChapter: sourceChapter.trim() || null,
+      sourcePage: sourcePage.trim() || null,
       updatedAt: new Date().toISOString(),
       createdAt: existingWriting?.createdAt || new Date().toISOString(),
     };
@@ -100,6 +110,30 @@ export function WritingPanel({
           />
         )}
 
+        {/* Source Details (Chapter/Page) */}
+        <div className="flex gap-3">
+          <div className="flex-1 space-y-1">
+            <label className="text-xs text-white/60">Chapter (optional)</label>
+            <input
+              type="text"
+              value={sourceChapter}
+              onChange={(e) => setSourceChapter(e.target.value)}
+              placeholder="e.g., Ch. 3"
+              className="w-full p-2 rounded-lg bg-black/30 border border-white/20 text-white text-sm placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+          <div className="flex-1 space-y-1">
+            <label className="text-xs text-white/60">Page (optional)</label>
+            <input
+              type="text"
+              value={sourcePage}
+              onChange={(e) => setSourcePage(e.target.value)}
+              placeholder="e.g., p. 42"
+              className="w-full p-2 rounded-lg bg-black/30 border border-white/20 text-white text-sm placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+        </div>
+
         {/* Idea */}
         <div className="space-y-2">
           <label className="flex items-center justify-between">
@@ -115,7 +149,7 @@ export function WritingPanel({
             value={idea}
             onChange={(e) => setIdea(e.target.value)}
             placeholder="What's one insight from this reading?"
-            className="w-full min-h-[80px] p-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none text-sm leading-relaxed"
+            className="w-full min-h-[80px] p-3 rounded-xl bg-black/30 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none text-sm leading-relaxed"
             rows={3}
           />
         </div>
@@ -134,7 +168,7 @@ export function WritingPanel({
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="What does this text make you wonder about?"
-            className="w-full min-h-[60px] p-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none text-sm leading-relaxed"
+            className="w-full min-h-[60px] p-3 rounded-xl bg-black/30 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none text-sm leading-relaxed"
             rows={2}
           />
         </div>
@@ -153,7 +187,7 @@ export function WritingPanel({
             value={application}
             onChange={(e) => setApplication(e.target.value)}
             placeholder="How does this connect to your thinking or experience?"
-            className="w-full min-h-[60px] p-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none text-sm leading-relaxed"
+            className="w-full min-h-[60px] p-3 rounded-xl bg-black/30 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none text-sm leading-relaxed"
             rows={2}
           />
         </div>
@@ -166,11 +200,11 @@ export function WritingPanel({
         />
 
         {/* Fragment Toggle */}
-        <div className="pt-4 border-t border-white/10">
+        <div className="pt-4 border-t border-white/20">
           <button
             type="button"
             onClick={() => setShowFragment(!showFragment)}
-            className="flex items-center gap-2 text-sm font-medium text-violet-300 hover:text-violet-200 transition"
+            className="flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white/80 transition"
           >
             {showFragment ? (
               <>
@@ -196,7 +230,7 @@ export function WritingPanel({
               className="space-y-2"
             >
               <label className="flex items-center justify-between">
-                <span className="text-sm font-medium text-violet-300">
+                <span className="text-sm font-medium text-white/60">
                   Polished Fragment
                 </span>
                 <span className="text-xs text-white/40">
@@ -207,10 +241,10 @@ export function WritingPanel({
                 value={fragment}
                 onChange={(e) => setFragment(e.target.value)}
                 placeholder="Refine your thinking into a clean, book-voice fragment..."
-                className="w-full min-h-[120px] p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-100 placeholder-violet-300/40 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none text-sm leading-relaxed"
+                className="w-full min-h-[120px] p-4 rounded-xl bg-black border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none text-sm leading-relaxed"
                 rows={5}
               />
-              <p className="text-xs text-violet-400/60">
+              <p className="text-xs text-white/50">
                 This becomes a draft fragment in your book archive
               </p>
             </motion.div>
@@ -222,7 +256,7 @@ export function WritingPanel({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-white/10 text-white/70 hover:bg-white/5 transition"
+            className="px-4 py-2 rounded-xl border border-white/20 text-white/70 hover:bg-black transition"
           >
             Cancel
           </button>
