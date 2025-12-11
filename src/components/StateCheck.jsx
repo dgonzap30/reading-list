@@ -37,7 +37,7 @@ export function StateCheck({ isOpen, onSelect, onSkip, sessionLabel }) {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0A0A0A] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.8)]"
+          className="relative w-full max-w-2xl rounded-xl border border-white/20 bg-black p-6 shadow-lg"
         >
           {/* Header */}
           <div className="mb-6">
@@ -63,18 +63,15 @@ export function StateCheck({ isOpen, onSelect, onSkip, sessionLabel }) {
                   type="button"
                   onClick={() => onSelect(key)}
                   className={clsx(
-                    'group relative overflow-hidden rounded-2xl border p-6 text-left transition-all',
-                    'border-white/10 bg-white/5',
-                    'hover:border-white/30 hover:bg-white/10',
+                    'group relative overflow-hidden rounded-xl border p-6 text-left transition-all',
+                    'border-white/20 bg-black',
+                    'hover:border-white/30 hover:bg-white/[0.03]',
                     'hover:scale-[1.02]',
                     'flex flex-col gap-3'
                   )}
                 >
                   {/* Icon */}
-                  <div className={clsx(
-                    'inline-flex items-center justify-center w-12 h-12 rounded-xl',
-                    `bg-${state.color}-500/20 text-${state.color}-300`
-                  )}>
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/[0.03] text-white/50">
                     {Icon && <Icon className="h-6 w-6" />}
                   </div>
 
@@ -99,10 +96,7 @@ export function StateCheck({ isOpen, onSelect, onSkip, sessionLabel }) {
 
                   {/* Hover effect */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <div className={clsx(
-                      'absolute inset-0 rounded-2xl',
-                      `bg-gradient-to-br from-${state.color}-500/10 to-transparent`
-                    )} />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/5 to-transparent" />
                   </div>
                 </button>
               );

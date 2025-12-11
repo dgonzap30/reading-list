@@ -19,8 +19,8 @@ export function TimerFAB({ onComplete, activeSession, onStartBlock, onClearBlock
       )}
 
       {isExpanded && (
-        <div className="fixed bottom-6 right-6 z-40 w-80 rounded-xl border border-white/10 bg-zinc-900/95 shadow-lg backdrop-blur-xl">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className="fixed bottom-6 right-6 z-40 w-80 rounded-xl border border-white/20 bg-black/95 shadow-lg backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-white/20 px-4 py-3">
             <span className="text-sm font-semibold text-white">Focus Timer</span>
             <button
               onClick={() => setIsExpanded(false)}

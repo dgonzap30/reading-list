@@ -33,7 +33,7 @@ export function FocusOverlay({ sessionTicker, onStop, onSaveNote, initialNote })
             <div className="w-full max-w-3xl px-6 flex flex-col items-center gap-12">
                 {/* Timer Display */}
                 <div className="text-center space-y-4">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-white/60">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black px-4 py-1.5 text-sm text-white/60">
                         <Lucide.Orbit className="h-4 w-4 animate-spin-slow" />
                         <span>Focus Mode Active</span>
                     </div>
@@ -51,7 +51,7 @@ export function FocusOverlay({ sessionTicker, onStop, onSaveNote, initialNote })
                                 value={note}
                                 onChange={(e) => handleSave(e.target.value)}
                                 placeholder="Capture thoughts as they come..."
-                                className="w-full h-48 rounded-2xl bg-white/5 border border-white/10 p-6 text-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"
+                                className="w-full h-48 rounded-xl bg-black border border-white/20 p-6 text-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"
                             />
                             <div className="absolute bottom-4 right-4 text-xs text-white/30">
                                 Auto-saving
@@ -63,7 +63,7 @@ export function FocusOverlay({ sessionTicker, onStop, onSaveNote, initialNote })
                 {/* Controls */}
                 <button
                     onClick={onStop}
-                    className="group flex items-center gap-3 rounded-full bg-white/10 px-8 py-4 text-lg font-medium text-white transition hover:bg-red-500/20 hover:text-red-200"
+                    className="group flex items-center gap-3 rounded-full bg-white/[0.03] px-8 py-4 text-lg font-medium text-white transition hover:bg-red-500/20 hover:text-red-200"
                 >
                     <Lucide.Square className="h-5 w-5 fill-current" />
                     Stop Session

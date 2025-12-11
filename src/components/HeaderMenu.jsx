@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import * as Lucide from 'lucide-react';
 import { DatePicker } from './DatePicker.jsx';
-import { BooksDropdown } from './BooksDropdown.jsx';
 
 export function HeaderMenu({
   startDate,
@@ -15,6 +14,7 @@ export function HeaderMenu({
   onOpenFragments,
   fragmentCount = 0,
   onOpenCmd,
+  onOpenBooks,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -36,7 +36,7 @@ export function HeaderMenu({
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+        className="flex items-center gap-2 rounded-xl border border-white/20 bg-black px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
         aria-label="Menu"
       >
         <Lucide.Menu className="h-4 w-4" />
@@ -44,7 +44,7 @@ export function HeaderMenu({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-2 min-w-[280px] rounded-xl border border-white/10 bg-zinc-900/95 p-3 shadow-lg backdrop-blur-xl">
+        <div className="absolute right-0 top-full z-50 mt-2 min-w-[280px] rounded-xl border border-white/20 bg-black/95 p-3 shadow-lg backdrop-blur-xl">
           <div className="space-y-3">
             {/* Quick Actions */}
             <div className="space-y-2">
@@ -94,9 +94,17 @@ export function HeaderMenu({
               <div className="px-2">
                 <DatePicker value={startDate || ''} onChange={setStartDate} />
               </div>
-              <div className="px-2">
-                <BooksDropdown books={books} extras={extraBooks} />
-              </div>
+              <button
+                onClick={() => {
+                  onOpenBooks();
+                  setIsOpen(false);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-white transition hover:bg-white/10"
+              >
+                <Lucide.Library className="h-4 w-4 text-white/60" />
+                <span>Book Library</span>
+                <span className="ml-auto text-xs text-white/40">{books.length} books</span>
+              </button>
             </div>
 
             <div className="h-px bg-white/10" />

@@ -67,7 +67,7 @@ export function DatePicker({ value, onChange }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-12 w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 text-left text-sm text-white/85 transition hover:border-white/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+        className="flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-white/20 bg-black px-4 text-left text-sm text-white/85 transition hover:border-white/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -77,11 +77,11 @@ export function DatePicker({ value, onChange }) {
             {selectedDate ? format(selectedDate, 'EEE, MMM d') : 'Pick a date'}
           </p>
         </div>
-        <Lucide.Calendar className="h-5 w-5 text-emerald-200" />
+        <Lucide.Calendar className="h-5 w-5 text-white/50" />
       </button>
 
       {open && (
-        <div className="absolute z-30 mt-3 w-72 rounded-3xl border border-white/10 bg-[#050712]/95 p-4 shadow-[0_25px_55px_rgba(2,6,23,0.65)] backdrop-blur">
+        <div className="absolute z-30 mt-3 w-72 rounded-xl border border-white/20 bg-black/95 p-4 shadow-lg backdrop-blur">
           <div className="flex items-center justify-between text-white">
             <button
               type="button"
@@ -119,16 +119,16 @@ export function DatePicker({ value, onChange }) {
                       type="button"
                       onClick={() => handleSelect(day)}
                       className={clsx(
-                        'h-9 rounded-2xl border text-xs font-medium transition',
+                        'h-9 rounded-xl border text-xs font-medium transition',
                         isSelected
-                          ? 'border-emerald-400/60 bg-emerald-500/20 text-white shadow-[0_10px_25px_rgba(16,185,129,0.35)]'
+                          ? 'border-emerald-400/60 bg-emerald-500/20 text-white'
                           : 'border-transparent text-white/70 hover:border-white/20 hover:text-white',
                         !isCurrentMonth && 'text-white/30',
                       )}
                     >
                       <span>{format(day, 'd')}</span>
                       {isToday && !isSelected && (
-                        <span className="mt-0.5 block text-[10px] uppercase tracking-[0.2em] text-emerald-300">Now</span>
+                        <span className="mt-0.5 block text-[10px] uppercase tracking-[0.2em] text-white/50">Now</span>
                       )}
                     </button>
                   );
@@ -144,14 +144,14 @@ export function DatePicker({ value, onChange }) {
                 setViewDate(today);
                 handleSelect(today);
               }}
-              className="flex-1 rounded-2xl border border-white/15 px-3 py-2 text-sm text-white/80 hover:border-white/40"
+              className="flex-1 rounded-xl border border-white/15 px-3 py-2 text-sm text-white/80 hover:border-white/40"
             >
               Today
             </button>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-2xl border border-white/15 px-3 py-2 text-sm text-white/60 hover:text-white"
+              className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white/60 hover:text-white"
             >
               Close
             </button>

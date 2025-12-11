@@ -36,16 +36,11 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
   }, [duration, remaining, running, onComplete]);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_25px_60px_rgba(2,6,23,0.55)]">
-      <div className="pointer-events-none absolute inset-0 opacity-60">
-        <div className="absolute -inset-8 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.35),_transparent_55%)] blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-32 w-32 translate-x-10 translate-y-8 rounded-full bg-emerald-400/30 blur-3xl" />
-      </div>
-
+    <div className="relative overflow-hidden rounded-xl border border-white/20 bg-black p-6 shadow-sm">
       <div className="relative flex flex-col gap-5">
         <div className="flex items-center justify-between gap-2 text-xs uppercase tracking-[0.2em] text-white/60">
           <span>Focus coach</span>
-          <span className="text-[11px] normal-case tracking-normal text-emerald-200">{status}</span>
+          <span className="text-[11px] normal-case tracking-normal text-white/50">{status}</span>
         </div>
 
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -65,14 +60,14 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
               <>
                 <button
                   onClick={onClearBlock}
-                  className="inline-flex items-center gap-1 rounded-2xl bg-white/10 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20"
+                  className="inline-flex items-center gap-1 rounded-xl bg-white/[0.03] px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20"
                 >
                   <Lucide.StopCircle className="h-4 w-4" />
                   Stop
                 </button>
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="inline-flex items-center gap-1 rounded-2xl border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white"
+                  className="inline-flex items-center gap-1 rounded-xl border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white"
                 >
                   <Lucide.Navigation className="h-4 w-4" />
                   Jump to start
@@ -83,14 +78,14 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
               <>
                 <button
                   onClick={pause}
-                  className="inline-flex items-center gap-1 rounded-2xl bg-white/10 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20"
+                  className="inline-flex items-center gap-1 rounded-xl bg-white/[0.03] px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20"
                 >
                   <Lucide.Pause className="h-4 w-4" />
                   Pause
                 </button>
                 <button
                   onClick={reset}
-                  className="inline-flex items-center gap-1 rounded-2xl border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white"
+                  className="inline-flex items-center gap-1 rounded-xl border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white"
                 >
                   <Lucide.RotateCcw className="h-4 w-4" />
                   Reset
@@ -101,7 +96,7 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
               <>
                 <button
                   onClick={resume}
-                  className="inline-flex items-center gap-1 rounded-2xl bg-emerald-500/20 px-3 py-1.5 text-sm font-medium text-emerald-50 shadow-[0_10px_35px_rgba(16,185,129,0.35)] hover:bg-emerald-500/30"
+                  className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500/20"
                 >
                   <Lucide.Play className="h-4 w-4" />
                   Resume
@@ -111,9 +106,9 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
           </div>
         </div>
 
-        <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+        <div className="h-2 w-full rounded-full bg-white/[0.03] overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-sky-400 transition-all duration-500"
+            className="h-full rounded-full bg-emerald-400 transition-all duration-500"
             style={{ width: `${percent}%` }}
           />
         </div>
@@ -129,9 +124,9 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
                 <button
                   key={block.minutes}
                   onClick={handleClick}
-                  className="group inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:border-white/40"
+                  className="group inline-flex items-center gap-2 rounded-xl border border-white/15 bg-black px-4 py-2 text-sm text-white/80 hover:border-white/40"
                 >
-                  <Lucide.Bolt className="h-4 w-4 text-amber-200 group-hover:scale-110 transition" />
+                  <Lucide.Bolt className="h-4 w-4 text-white/50 group-hover:scale-110 transition" />
                   {block.label}
                 </button>
               );

@@ -38,7 +38,7 @@ export function CommandPalette({ open, setOpen, plan, jumpToWeek, markAllWeek })
             <Command
               label="Command Menu"
               shouldFilter
-              className="overflow-hidden rounded-3xl border border-white/10 bg-[#050712]/95 text-white shadow-[0_30px_80px_rgba(0,0,0,0.65)]"
+              className="overflow-hidden rounded-xl border border-white/20 bg-black/95 text-white shadow-lg"
             >
               <div className="flex items-center gap-3 border-b border-white/5 px-4 py-3">
                 <Lucide.Search className="h-4 w-4 text-white/40" />
@@ -48,7 +48,7 @@ export function CommandPalette({ open, setOpen, plan, jumpToWeek, markAllWeek })
                   placeholder="Jump to a week, mark all sessions, or get help…"
                   className="flex-1 bg-transparent text-sm text-white placeholder:text-white/40 outline-none"
                 />
-                <kbd className="rounded-md border border-white/10 px-2 py-1 text-[10px] text-white/60">Esc</kbd>
+                <kbd className="rounded-md border border-white/20 px-2 py-1 text-[10px] text-white/60">Esc</kbd>
               </div>
               <Command.List className="max-h-72 overflow-auto px-2 py-3 text-sm">
                 <Command.Empty className="px-3 py-2 text-white/60">No results — try another keyword.</Command.Empty>
@@ -60,7 +60,7 @@ export function CommandPalette({ open, setOpen, plan, jumpToWeek, markAllWeek })
                         jumpToWeek(week.id);
                         setOpen(false);
                       }}
-                      className="my-1 flex items-center gap-2 rounded-2xl px-3 py-2 text-white aria-selected:bg-white/10 aria-selected:text-white"
+                      className="my-1 flex items-center gap-2 rounded-xl px-3 py-2 text-white aria-selected:bg-white/[0.03] aria-selected:text-white"
                     >
                       <Lucide.Calendar className="h-4 w-4" />
                       <div>
@@ -78,7 +78,7 @@ export function CommandPalette({ open, setOpen, plan, jumpToWeek, markAllWeek })
                         markAllWeek(week.id);
                         setOpen(false);
                       }}
-                      className="my-1 flex items-center gap-2 rounded-2xl px-3 py-2 text-white aria-selected:bg-white/10 aria-selected:text-white"
+                      className="my-1 flex items-center gap-2 rounded-xl px-3 py-2 text-white aria-selected:bg-white/[0.03] aria-selected:text-white"
                     >
                       <Lucide.CheckSquare className="h-4 w-4" />
                       Mark Week {week.id} complete

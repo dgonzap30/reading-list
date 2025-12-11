@@ -31,6 +31,7 @@ export function Header({
   onJumpToWeek,
   fragments = {},
   onOpenFragments,
+  onOpenBooks,
 }) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const pct = Math.round(progress * 100);
@@ -42,7 +43,7 @@ export function Header({
   return (
     <>
       {/* Mobile: Combined sticky bar with progress + week pills */}
-      <div className="lg:hidden sticky top-0 z-30 bg-[#030711]/90 backdrop-blur-xl border-b border-white/10">
+      <div className="lg:hidden sticky top-0 z-30 bg-black/90 backdrop-blur-xl border-b border-white/20">
         {/* Row 1: Progress + Stats + Actions */}
         <div className="flex items-center justify-between px-4 py-2.5">
           <div className="flex items-center gap-3">
@@ -59,14 +60,14 @@ export function Header({
           </div>
           <div className="flex items-center gap-2">
             {streak > 0 && (
-              <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-white">
-                <Lucide.Flame className="h-3 w-3 text-orange-300" />
+              <div className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black px-2 py-1 text-xs text-white">
+                <Lucide.Flame className="h-3 w-3 text-white/50" />
                 <span>{streak}</span>
               </div>
             )}
             <button
               onClick={onOpenCmd}
-              className="flex items-center justify-center rounded-full border border-white/10 bg-white/5 p-2 text-white transition hover:bg-white/10"
+              className="flex items-center justify-center rounded-full border border-white/20 bg-black p-2 text-white transition hover:bg-white/[0.05]"
             >
               <Lucide.Command className="h-4 w-4" />
             </button>
@@ -83,7 +84,7 @@ export function Header({
                 'flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
                 week.id === currentWeek
                   ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200'
-                  : 'bg-white/5 border-white/10 text-white/60'
+                  : 'bg-black border-white/20 text-white/60'
               )}
             >
               W{week.id}
@@ -93,7 +94,7 @@ export function Header({
       </div>
 
       {/* Desktop: Simplified header */}
-      <header className="hidden lg:block sticky top-0 z-30 border-b border-white/10 bg-[#030711]/90 backdrop-blur-xl text-white/90">
+      <header className="hidden lg:block sticky top-0 z-30 border-b border-white/20 bg-black/90 backdrop-blur-xl text-white/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -120,6 +121,7 @@ export function Header({
             onOpenFragments={onOpenFragments}
             fragmentCount={fragmentCount}
             onOpenCmd={onOpenCmd}
+            onOpenBooks={onOpenBooks}
           />
         </div>
       </header>
