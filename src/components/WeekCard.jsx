@@ -55,6 +55,8 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
   return (
     <motion.div
       layout
+      role="region"
+      aria-label={`Week ${week.id}: ${week.title}`}
       className={clsx(
         'relative overflow-hidden rounded-xl border border-white/20 bg-black p-5 shadow-sm transition-all',
         isCurrent ? 'ring-1 ring-emerald-400/40' : 'hover:border-white/30',
@@ -68,9 +70,10 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
           className="flex w-full items-center justify-between rounded-xl border border-white/20 bg-black px-4 py-3 text-left text-white transition hover:border-white/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 group"
         >
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-white/60 group-hover:text-white/80 transition-colors">Week {week.id}</p>
-            <p className="text-lg font-semibold text-white">{week.title}</p>
-            {week.metaIntent && <p className="text-sm text-white/50">{week.metaIntent}</p>}
+            <p className="text-lg font-semibold text-white">
+              <span className="text-white/50 font-normal">W{week.id}</span> {week.title}
+            </p>
+            {expanded && week.metaIntent && <p className="mt-1 text-sm text-white/50">{week.metaIntent}</p>}
           </div>
           <Lucide.ChevronDown
             className={clsx(
@@ -79,6 +82,12 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
             )}
           />
         </button>
+
+        {week.primer && (
+          <p className="text-sm text-white/50 mt-2 line-clamp-1">
+            {week.primer}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="w-32 rounded-full bg-white/[0.03] h-2 overflow-hidden">
@@ -93,14 +102,14 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
           )}
           <button
             onClick={() => markWeek(true)}
-            className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-500/20"
+            className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             <Lucide.CheckSquare className="h-3.5 w-3.5" />
             Mark all
           </button>
           <button
             onClick={() => markWeek(false)}
-            className="inline-flex items-center gap-1 rounded-xl border border-white/15 px-3 py-1 text-xs text-white/70 hover:border-white/40"
+            className="inline-flex items-center gap-1 rounded-xl border border-white/15 px-3 py-1 text-xs text-white/70 hover:border-white/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             <Lucide.Eraser className="h-3.5 w-3.5" />
             Clear
@@ -108,7 +117,7 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
           {(doneCount === week.sessions.length || fragmentCount > 0) && (
             <button
               onClick={() => setIsWeeklySummaryOpen(true)}
-              className="inline-flex items-center gap-1 rounded-xl bg-black px-3 py-1 text-xs font-semibold text-white/80 hover:bg-white/[0.03] transition"
+              className="inline-flex items-center gap-1 rounded-xl bg-black px-3 py-1 text-xs font-semibold text-white/80 hover:bg-white/[0.03] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             >
               <Lucide.FileText className="h-3.5 w-3.5" />
               Summary
@@ -127,6 +136,8 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
               <button
                 onClick={() => setShowContext(!showContext)}
                 className="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition"
+                aria-label={showContext ? `Hide week ${week.id} context` : `Show week ${week.id} context`}
+                aria-expanded={showContext}
               >
                 <Lucide.Info className="h-3.5 w-3.5" />
                 <span>{showContext ? 'Hide' : 'Show'} week context</span>

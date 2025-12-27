@@ -98,14 +98,24 @@ export function Header({
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <ProgressRing percent={pct} size={48} />
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-semibold text-emerald-100">
+              <ProgressRing percent={pct} size={56} />
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm font-semibold text-emerald-100">
                 {pct}%
               </div>
             </div>
             <div>
               <p className="text-sm font-semibold text-white">{pct}% Complete</p>
-              <p className="text-xs text-white/50">Day {planDay} · {streak > 0 ? `${streak}-day streak` : 'Start today'}</p>
+              <p className="text-xs text-white/50 flex items-center gap-1.5">
+                Day {planDay} ·
+                {streak > 0 ? (
+                  <>
+                    {streak > 3 && <Lucide.Flame className="h-3.5 w-3.5 text-orange-400" />}
+                    <span>{streak}-day streak</span>
+                  </>
+                ) : (
+                  <span>Start today</span>
+                )}
+              </p>
             </div>
           </div>
 

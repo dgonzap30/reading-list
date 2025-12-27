@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { Toaster, toast } from 'react-hot-toast';
 import * as Lucide from 'lucide-react';
 import { format } from 'date-fns';
+import clsx from 'clsx';
 import { PLAN, DOMAIN, FICTION_LIBRARY } from './data/plan.js';
 import { Header } from './components/Header.jsx';
 import { Toolbar } from './components/Toolbar.jsx';
@@ -42,12 +43,18 @@ const createInitialState = () => ({
   fictionSwaps: {},       // NEW: weekId -> 'runnerUp' | null
 });
 
-function StatCard({ icon: Icon, label, value, caption }) {
+function StatCard({ icon: Icon, label, value, caption, isPrimary, progress }) {
   return (
-    <div className="rounded-xl border border-white/20 bg-black p-5 shadow-sm">
+    <div className={clsx(
+      'rounded-xl border bg-black shadow-sm',
+      isPrimary ? 'border-emerald-500/20 p-5' : 'border-white/10 p-4'
+    )}>
       <div className="flex items-center gap-4">
-        <div className="rounded-xl border border-white/20 bg-white/[0.03] p-3.5 text-white/60">
-          <Icon className="h-5 w-5" />
+        <div className={clsx(
+          'rounded-xl border bg-white/[0.03] text-white/60',
+          isPrimary ? 'border-white/20 p-3.5' : 'border-white/10 p-2.5'
+        )}>
+          <Icon className={isPrimary ? 'h-5 w-5' : 'h-4 w-4'} />
         </div>
         <div className="flex-1">
           <p className="text-xs uppercase tracking-[0.3em] text-white/50">{label}</p>
@@ -55,6 +62,11 @@ function StatCard({ icon: Icon, label, value, caption }) {
           <p className="text-sm text-white/50">{caption}</p>
         </div>
       </div>
+      {isPrimary && progress !== undefined && (
+        <div className="mt-3 w-full rounded-full bg-white/[0.03] h-1.5 overflow-hidden">
+          <div className="h-full rounded-full bg-emerald-400" style={{ width: `${progress}%` }} />
+        </div>
+      )}
     </div>
   );
 }
@@ -302,12 +314,15 @@ export default function App() {
       value: totalDone,
       caption: `${totalSessions} planned`,
       icon: Lucide.BookOpenCheck,
+      isPrimary: true,
+      progress: heroPct,
     },
     {
       label: 'Plan day',
       value: planDay,
       caption: 'Auto-tracked from your start',
       icon: Lucide.Clock3,
+      isPrimary: false,
     },
     // Active days replaced by Heatmap
     {
@@ -315,12 +330,15 @@ export default function App() {
       value: weekSessions ? `${weekDone}/${weekSessions}` : '—',
       caption: `${weekPct}% complete`,
       icon: Lucide.CalendarCheck,
+      isPrimary: true,
+      progress: weekPct,
     },
     {
       label: 'Remaining',
       value: sessionsRemaining,
       caption: 'Sessions left to savor',
       icon: Lucide.Hourglass,
+      isPrimary: false,
     },
   ];
 
@@ -453,6 +471,12 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-transparent text-white">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:inline-flex focus:items-center focus:gap-2 focus:rounded-xl focus:bg-emerald-500 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-emerald-400"
+      >
+        Skip to main content
+      </a>
       <Toaster position="bottom-right" />
 
       <Header
@@ -477,7 +501,7 @@ export default function App() {
         onOpenBooks={() => setBooksModalOpen(true)}
       />
 
-      <main className="pb-32">
+      <main id="main-content" className="pb-32">
           <section className="mx-auto mt-8 w-full max-w-6xl px-4 md:px-6">
             <div className="overflow-hidden rounded-xl border border-white/20 bg-black p-6 shadow-sm">
               <div className="space-y-4">
@@ -501,16 +525,16 @@ export default function App() {
                 </div>
               </div>
             </div>
+            {/* Heatmap - Full Width */}
+            <div className="mt-4">
+              <Heatmap activityDates={state.activityDates || {}} />
+            </div>
+
             {/* Stat Cards Grid */}
             <div className="mt-4 grid gap-4 grid-cols-2 lg:grid-cols-4">
               {statCards.map((card) => (
                 <StatCard key={card.label} {...card} />
               ))}
-            </div>
-
-            {/* Heatmap - Full Width */}
-            <div className="mt-4">
-              <Heatmap activityDates={state.activityDates || {}} />
             </div>
           </section>
 
@@ -529,11 +553,15 @@ export default function App() {
 
           <div className="mx-auto mt-8 grid w-full max-w-6xl gap-5 px-4 md:px-6">
             {!isFlatView && <WeekZeroCard />}
+            {!isFlatView && <SipsAndSwaps plan={PLAN} />}
 
             {isFlatView ? (
               <div className="space-y-4">
                 {filteredContent.length === 0 ? (
-                  <div className="text-center text-white/50 py-12">No sessions found matching your filter.</div>
+                  <div className="text-center py-12">
+                    <p className="text-lg text-white/60 mb-1">No sessions found</p>
+                    <p className="text-sm text-white/40">Try adjusting your search or filter</p>
+                  </div>
                 ) : (
                   filteredContent.map(session => (
                     <SessionRow
@@ -551,29 +579,43 @@ export default function App() {
                 )}
               </div>
             ) : (
-              filteredContent.map((week) => (
-                <div key={week.id} id={`week-${week.id}`} className="scroll-mt-28 md:scroll-mt-32">
-                  <WeekCard
-                    week={week}
-                    state={state}
-                    setState={setState}
-                    isCurrent={week.id === currentWeek}
-                    expanded={expandedWeeks.has(week.id)}
-                    onToggle={() => toggleWeekExpansion(week.id)}
-                    onStartTimer={handleStartSessionTimer}
-                    onToggleSession={toggleSession}
-                    onSaveNote={saveNote}
-                    onSaveWriting={saveWriting}
-                    onSwapFiction={swapFiction}
-                  />
-                </div>
-              ))
+              filteredContent.map((week, idx) => {
+                // Find the phase for this week
+                const phase = PLAN.phases.find(p => p.weeks.includes(week.id));
+                const isFirstInPhase = phase && phase.weeks[0] === week.id;
+
+                return (
+                  <div key={week.id}>
+                    {isFirstInPhase && (
+                      <div className="flex items-center gap-3 py-6 first:pt-0">
+                        <span className="text-xs uppercase tracking-widest text-white/40">
+                          {phase.emoji} {phase.title}
+                        </span>
+                        <div className="flex-1 h-px bg-white/10" />
+                      </div>
+                    )}
+                    <div id={`week-${week.id}`} className="scroll-mt-28 md:scroll-mt-32">
+                      <WeekCard
+                        week={week}
+                        state={state}
+                        setState={setState}
+                        isCurrent={week.id === currentWeek}
+                        expanded={expandedWeeks.has(week.id)}
+                        onToggle={() => toggleWeekExpansion(week.id)}
+                        onStartTimer={handleStartSessionTimer}
+                        onToggleSession={toggleSession}
+                        onSaveNote={saveNote}
+                        onSaveWriting={saveWriting}
+                        onSwapFiction={swapFiction}
+                      />
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
 
           <Badges badges={badges} />
-
-          <SipsAndSwaps plan={PLAN} />
       </main>
 
       <div className="fixed bottom-0 inset-x-0 z-40 md:hidden">

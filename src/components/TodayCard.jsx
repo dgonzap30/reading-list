@@ -22,7 +22,7 @@ export function TodayCard({ plan, state, currentWeek, scrollTo }) {
 
   return (
     <div className="mx-auto mt-6 w-full max-w-6xl px-4 md:px-6">
-      <div className="relative overflow-hidden rounded-xl border border-white/20 bg-black p-5 shadow-sm">
+      <div className="relative overflow-hidden rounded-xl border border-emerald-500/30 border-l-4 border-l-emerald-500 bg-black p-5 shadow-lg shadow-emerald-500/10">
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center">
           <div className="flex flex-1 items-start gap-4">
             <div className="rounded-xl border border-white/15 bg-white/[0.03] p-3 text-white/60">
@@ -42,7 +42,7 @@ export function TodayCard({ plan, state, currentWeek, scrollTo }) {
           <div className="flex flex-col gap-2 md:items-end">
             <button
               onClick={() => scrollTo(next.id)}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500/20"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-emerald-500/20 transition hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             >
               <Lucide.Navigation className="h-4 w-4" />
               Jump to session
