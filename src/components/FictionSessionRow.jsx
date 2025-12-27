@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import * as Lucide from 'lucide-react';
 import clsx from 'clsx';
+import { motion } from 'framer-motion';
 import { WritingPanel } from './WritingPanel.jsx';
 import { getRandomQuote } from '../data/quotes.js';
 import { SECTIONS } from '../data/sections.js';
@@ -30,31 +31,34 @@ export function FictionSessionRow({
         <div
             data-session={sessionId}
             className={clsx(
-                'group flex flex-col gap-3 p-4 rounded-xl border transition-all',
+                'group flex flex-col gap-3 p-4 rounded-xl border-2 border-dashed transition-all',
                 checked
-                    ? 'border-emerald-500/30 bg-emerald-500/5 shadow-sm'
-                    : 'border-white/20 bg-black hover:border-white/20',
+                    ? 'border-emerald-500/40 bg-emerald-500/5 shadow-sm'
+                    : 'border-violet-500/25 bg-violet-500/5 hover:border-violet-500/35',
             )}
         >
             <div className="flex items-start gap-3">
-                <button
+                <motion.button
                     type="button"
                     onClick={() => onToggle(sessionId)}
                     className={clsx(
-                        'h-9 w-9 shrink-0 rounded-xl border transition flex items-center justify-center',
+                        'h-9 w-9 shrink-0 rounded-xl border transition flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400',
                         checked
                             ? 'border-emerald-400 bg-emerald-500/15 text-emerald-50'
                             : 'border-white/20 bg-black text-white/60 hover:border-white/30',
                     )}
                     aria-pressed={checked}
                     aria-label={checked ? 'Unmark fiction session' : 'Mark fiction session complete'}
+                    whileTap={{ scale: 0.9 }}
+                    animate={checked ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.2 }}
                 >
                     {checked ? (
                         <Lucide.CheckCircle2 className="h-5 w-5" />
                     ) : (
                         <Lucide.Circle className="h-5 w-5" />
                     )}
-                </button>
+                </motion.button>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 text-sm flex-wrap">
                         <Lucide.Sparkles className="w-4 h-4 text-emerald-400" />
@@ -104,12 +108,12 @@ export function FictionSessionRow({
                     />
                 </div>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex flex-wrap gap-2 text-xs opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 {fiction.runnerUp && (
                     <button
                         type="button"
                         onClick={() => onSwap(weekId)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-white/20 px-3 py-1 text-white/70 hover:border-white/30 hover:text-white/90 transition"
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/20 px-3 py-1 text-white/70 hover:border-white/30 hover:text-white/90 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                     >
                         <Lucide.Repeat className="h-3.5 w-3.5" />
                         {isSwapped ? `Swap to ${fiction.title}` : `Swap to ${fiction.runnerUp}`}
@@ -119,7 +123,7 @@ export function FictionSessionRow({
                     <button
                         type="button"
                         onClick={() => onToggle(sessionId)}
-                        className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-3 py-1 text-emerald-200 hover:bg-emerald-500/20 transition"
+                        className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-3 py-1 text-emerald-200 hover:bg-emerald-500/20 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                     >
                         <Lucide.Check className="h-3.5 w-3.5" />
                         Mark done

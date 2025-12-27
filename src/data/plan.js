@@ -7,6 +7,7 @@ export const DOMAIN = {
   'Society/Philosophy': { icon: Lucide.Globe, color: 'sky' },
   'Vision / Fiction': { icon: Lucide.Orbit, color: 'violet' },
   'Founder/Strategy': { icon: Lucide.Flag, color: 'indigo' },
+  'Health': { icon: Lucide.Activity, color: 'lime' },
   Capstone: { icon: Lucide.Zap, color: 'cyan' },
 };
 
@@ -14,6 +15,7 @@ export const RED_THREADS = [
   { emoji: '🧠', title: 'Systems Shape Behavior', books: 'Thinking in Systems → Cold Start → Systems Bible → Sapiens' },
   { emoji: '❤️', title: 'How a Person Becomes Whole', books: 'Frankl → Stoic → Brooks → Letters' },
   { emoji: '🎨', title: 'Creativity as Constraint', books: 'Bird by Bird → How Music Works → Steal Like an Artist' },
+  { emoji: '🤝', title: 'The Human Interface', books: 'Righteous Mind → How to Know a Person → Meditations → Culture Map → Never Split' },
 ];
 
 export const ENERGY_MATCHING = [
@@ -120,13 +122,13 @@ export const PLAN = {
     {
       id: 2,
       phaseId: 'phase1',
-      title: 'Creative Spark + Structural Bias',
-      metaIntent: 'Spark creativity, notice hidden structures.',
-      anchor: 'Creative ignition + design-awareness.',
-      smallWin: 'Identify one "invisible" constraint in your daily environment.',
-      primer: 'Creativity needs constraints; society has hidden ones.',
+      title: 'Writing Foundation + Structural Bias',
+      metaIntent: 'Start with the atomic unit of creative work, notice hidden structures.',
+      anchor: 'Individual creative practice + design-awareness.',
+      smallWin: 'Write a "shitty first draft" of something you\'ve been avoiding.',
+      primer: 'Start with the basics of creative work; society has hidden constraints.',
       sessions: [
-        { id: 'w2s1', domain: 'Creative/Craft', book: 'Steal Like an Artist', details: 'Ch. 1–5.' },
+        { id: 'w2s1', domain: 'Creative/Craft', book: 'Bird by Bird', details: '"Short Assignments," "Shitty First Drafts".' },
         { id: 'w2s2', domain: 'Society/Philosophy', book: 'Invisible Women', details: 'Intro + Part I (Ch. 1–2).' },
       ],
       fiction: {
@@ -139,13 +141,13 @@ export const PLAN = {
     {
       id: 3,
       phaseId: 'phase1',
-      title: 'Writing Foundation + Moral Intuition',
-      metaIntent: 'Write, feel, understand the mind.',
-      anchor: 'Writing + psychology for understanding people.',
-      smallWin: 'Write a "shitty first draft" of a difficult conversation.',
-      primer: 'Writing clarifies thought; intuition drives judgment. (Fiction swap available)',
+      title: 'Creative Network + Moral Intuition',
+      metaIntent: 'Understand how creative work fits into the world, understand the mind.',
+      anchor: 'Collective creative practice + psychology for understanding people.',
+      smallWin: 'Identify one artist/creator whose work you want to "steal from" this week.',
+      primer: 'Creative work lives in networks; intuition drives judgment. (Fiction swap available)',
       sessions: [
-        { id: 'w3s1', domain: 'Creative/Craft', book: 'Bird by Bird', details: '“Short Assignments,” “Shitty First Drafts”.' },
+        { id: 'w3s1', domain: 'Creative/Craft', book: 'Steal Like an Artist', details: 'Ch. 1–5.' },
         { id: 'w3s2', domain: 'Society/Philosophy', book: 'The Righteous Mind', details: 'Part I.' },
       ],
       fiction: {
@@ -158,14 +160,15 @@ export const PLAN = {
     {
       id: 4,
       phaseId: 'phase2',
-      title: 'Systemantics + Seeing People Clearly',
-      metaIntent: 'Zoom out to systems, zoom in to people.',
-      anchor: 'Chaos-awareness + empathy.',
+      title: 'Systemantics + The Human Interface',
+      metaIntent: 'Zoom out to systems, zoom in to people, ground in Stoic practice.',
+      anchor: 'Chaos-awareness + empathy + inner discipline.',
       smallWin: 'Describe one moment this week where a Systems Bible law showed up IRL.',
-      primer: 'Systems fail naturally; empathy requires seeing past the failure. (Fiction swap available)',
+      primer: 'Systems fail naturally; empathy requires seeing past the failure. Meditations bridges Frankl to Stoic practice.',
       sessions: [
-        { id: 'w4s1', domain: 'Systems/Tech', book: 'The Systems Bible', details: 'Core “Systemantics” laws.' },
+        { id: 'w4s1', domain: 'Systems/Tech', book: 'The Systems Bible', details: 'Core "Systemantics" laws.' },
         { id: 'w4s2', domain: 'Human/EQ', book: 'How to Know a Person', details: 'Ch. 1–4.' },
+        { id: 'w4s3', domain: 'Human/EQ', book: 'Meditations', details: 'Select passages (Book II-IV).' },
       ],
       fiction: {
         title: 'Do Androids Dream of Electric Sheep?',
@@ -196,14 +199,15 @@ export const PLAN = {
     {
       id: 6,
       phaseId: 'phase2',
-      title: 'Creative Constraints + Music as System',
-      metaIntent: 'Create with constraints.',
-      anchor: 'Creativity meets real-world systems.',
+      title: 'Creative Constraints + Biological Foundation',
+      metaIntent: 'Create with constraints, ground in biology.',
+      anchor: 'Creativity meets real-world systems + longevity science.',
       smallWin: 'Share one piece of work-in-progress with a friend.',
-      primer: 'Music is math with feeling; showing work creates feedback loops.',
+      primer: 'Music is math with feeling; showing work creates feedback loops. Outlive grounds abstract creativity.',
       sessions: [
         { id: 'w6s1', domain: 'Creative/Craft', book: 'How Music Works', details: 'Ch. 1–3.' },
         { id: 'w6s2', domain: 'Creative/Craft', book: 'Show Your Work', details: 'Entire book.' },
+        { id: 'w6s3', domain: 'Health', book: 'Outlive', details: 'Intro + Ch. 1-3 (The Long Game).' },
       ],
       fiction: {
         title: 'The Ocean at the End of the Lane',
@@ -223,6 +227,7 @@ export const PLAN = {
       sessions: [
         { id: 'w7s1', domain: 'Society/Philosophy', book: 'The Prince', details: 'Cruelty/mercy, fear/love.' },
         { id: 'w7s2', domain: 'Vision / Fiction', book: 'The Time Machine', details: 'Entire novella.' },
+        { id: 'w7s3', domain: 'Founder/Strategy', book: 'The Culture Map', details: 'Ch. 1-4 (Communicating, Evaluating, Persuading, Leading).' },
       ],
       fiction: {
         title: 'The Left Hand of Darkness',
@@ -240,8 +245,9 @@ export const PLAN = {
       smallWin: 'Sketch Movee’s atomic network on napkin-level detail.',
       primer: 'The hard part isn\'t scaling, it\'s starting.',
       sessions: [
-        { id: 'w8s1', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: 'Part I: “The Cold Start Theory”.' },
-        { id: 'w8s2', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: 'Part II: “Atomic Networks”.' },
+        { id: 'w8s1', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: 'Part I: "The Cold Start Theory".' },
+        { id: 'w8s2', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: 'Part II: "Atomic Networks".' },
+        { id: 'w8s3', domain: 'Founder/Strategy', book: 'Thinking in Bets', details: 'Ch. 1-4 (Embracing Uncertainty).' },
       ],
       fiction: {
         title: 'The Sense of an Ending',
@@ -272,14 +278,16 @@ export const PLAN = {
     {
       id: 10,
       phaseId: 'phase3',
-      title: 'Righteous Mind Part II + Stoic Core',
+      title: 'Righteous Mind Part II + Stoic Core + Frankl',
       metaIntent: 'Understand intuition, master reaction.',
       anchor: 'Intuition, emotion, and inner discipline.',
       smallWin: 'Practice "dichotomy of control" on one stressor.',
-      primer: 'Control your reaction, understand their intuition.',
+      primer: 'Control your reaction, understand their intuition, find meaning under pressure.',
       sessions: [
         { id: 'w10s1', domain: 'Society/Philosophy', book: 'The Righteous Mind', details: 'Part II.' },
         { id: 'w10s2', domain: 'Human/EQ', book: 'The Essential Stoic', details: 'Select Meditations.' },
+        { id: 'w10s3', domain: 'Founder/Strategy', book: 'Never Split the Difference', details: 'Ch. 1-5 (Tactical Empathy, Mirroring, Labeling).' },
+        { id: 'w10s4', domain: 'Human/EQ', book: "Man's Search for Meaning", details: 'Part II (Logotherapy).' },
       ],
       fiction: {
         title: 'We Have Always Lived in the Castle',
@@ -310,14 +318,15 @@ export const PLAN = {
     {
       id: 12,
       phaseId: 'phase3',
-      title: 'GEB On-Ramp + Money Mindset',
-      metaIntent: 'Stretch your brain, tidy your money.',
-      anchor: 'Logic recursion + financial sanity.',
+      title: 'GEB + Strange Loops + Money Mindset',
+      metaIntent: 'Stretch your brain with recursion, tidy your money.',
+      anchor: 'Logic recursion + GEB documentation + financial sanity.',
       smallWin: 'Define "enough" for your current financial goals.',
-      primer: 'Notice recursion in GEB and think of money habits as personal systems. (Fiction swap available)',
+      primer: 'I Am a Strange Loop is the "documentation" for GEB\'s "source code". Makes W14 GEB significantly more rewarding.',
       sessions: [
-        { id: 'w12s1', domain: 'Systems/Tech', book: 'Gödel, Escher, Bach', details: '“MU Puzzle” + first Tortoise dialogue.' },
-        { id: 'w12s2', domain: 'Founder/Strategy', book: 'The Psychology of Money', details: 'Key chapters (1–4, 11).' },
+        { id: 'w12s1', domain: 'Systems/Tech', book: 'Gödel, Escher, Bach', details: '"MU Puzzle" + first Tortoise dialogue.' },
+        { id: 'w12s2', domain: 'Systems/Tech', book: 'I Am a Strange Loop', details: 'Ch. 1-3 (Introduction to Strange Loops).' },
+        { id: 'w12s3', domain: 'Founder/Strategy', book: 'The Psychology of Money', details: 'Key chapters (1–4, 11).' },
       ],
       fiction: {
         title: 'The Left Hand of Darkness',
@@ -373,7 +382,8 @@ export const PLAN = {
       smallWin: 'Draft the "Tipping Point" strategy for Movee.',
       primer: 'Expansion requires breaking the initial constraints.',
       sessions: [
-        { id: 'w15s1', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: '“Tipping Point” + “Escape Velocity”.' },
+        { id: 'w15s1', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: '"Tipping Point" + "Escape Velocity".' },
+        { id: 'w15s2', domain: 'Systems/Tech', book: 'Thinking, Fast and Slow', details: 'Part I (Two Systems).' },
       ],
       fiction: {
         title: 'The Ocean at the End of the Lane',

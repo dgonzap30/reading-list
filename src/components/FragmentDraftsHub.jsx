@@ -185,9 +185,13 @@ export function FragmentDraftsHub({
           {filteredFragments.length === 0 ? (
             <div className="text-center py-16">
               <Lucide.FileText className="h-16 w-16 text-white/20 mx-auto mb-4" />
-              <p className="text-white/50 text-lg">No fragments found</p>
-              <p className="text-white/30 text-sm mt-2">
-                {searchQuery ? 'Try a different search' : 'Start writing to create fragments'}
+              <p className="text-white/60 text-lg mb-2">
+                {searchQuery ? 'No fragments found' : 'Your fragment archive awaits'}
+              </p>
+              <p className="text-white/40 text-sm">
+                {searchQuery
+                  ? 'Try a different search or clear your filters'
+                  : 'Capture your first insight today — polish it into a fragment'}
               </p>
             </div>
           ) : (

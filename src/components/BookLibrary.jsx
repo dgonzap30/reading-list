@@ -234,9 +234,10 @@ export function BookLibrary({ isOpen, onClose, books, phases, fictionLibrary = [
 
           {/* No Results */}
           {grandTotal === 0 && (
-            <div className="text-center py-16 text-white/50">
-              <Lucide.Search className="h-12 w-12 mx-auto mb-3 opacity-20" />
-              <p>No books found matching "{searchQuery}"</p>
+            <div className="text-center py-16">
+              <Lucide.Search className="h-12 w-12 mx-auto mb-3 text-white/20" />
+              <p className="text-white/60 text-lg mb-1">No books found</p>
+              <p className="text-white/40 text-sm">Try searching for "{searchQuery}" with different spelling or keywords</p>
             </div>
           )}
         </div>
