@@ -22,24 +22,6 @@ export function createFragment(sessionId, content, sectionTag, book, weekId, sou
 }
 
 /**
- * Get all fragments filtered by section tag
- */
-export function getFragmentsBySection(fragments, sectionTag) {
-  return Object.values(fragments)
-    .filter(f => f.sectionTag === sectionTag && f.status !== 'Discard')
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-
-/**
- * Get all fragments for a specific book
- */
-export function getFragmentsByBook(fragments, bookTitle) {
-  return Object.values(fragments)
-    .filter(f => f.sourceBook === bookTitle && f.status !== 'Discard')
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-
-/**
  * Get fragments created during a specific week
  */
 export function getWeeklyFragments(fragments, weekId) {
@@ -49,46 +31,11 @@ export function getWeeklyFragments(fragments, weekId) {
 }
 
 /**
- * Get fragments by status
- */
-export function getFragmentsByStatus(fragments, status) {
-  return Object.values(fragments)
-    .filter(f => f.status === status)
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-
-/**
  * Get all non-discarded fragments
  */
 export function getActiveFragments(fragments) {
   return Object.values(fragments)
     .filter(f => f.status !== 'Discard')
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-
-/**
- * Get fragment statistics
- */
-export function getFragmentStats(fragments) {
-  const all = Object.values(fragments);
-  return {
-    total: all.length,
-    final: all.filter(f => f.status === 'Final').length,
-    needsWork: all.filter(f => f.status === 'Needs Work').length,
-    discarded: all.filter(f => f.status === 'Discard').length,
-    bySection: all.reduce((acc, f) => {
-      acc[f.sectionTag] = (acc[f.sectionTag] || 0) + 1;
-      return acc;
-    }, {}),
-  };
-}
-
-/**
- * Get fragments by source type (fiction or nonfiction)
- */
-export function getFragmentsBySourceType(fragments, sourceType) {
-  return Object.values(fragments)
-    .filter(f => f.sourceType === sourceType && f.status !== 'Discard')
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 

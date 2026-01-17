@@ -279,10 +279,3 @@ export function getRandomQuote(bookTitle) {
   if (quotes.length === 0) return null;
   return quotes[Math.floor(Math.random() * quotes.length)];
 }
-
-/**
- * Get all books that have quotes
- */
-export function getBooksWithQuotes() {
-  return Object.keys(BOOK_QUOTES);
-}

@@ -8,22 +8,9 @@ export const DOMAIN = {
   'Vision / Fiction': { icon: Lucide.Orbit, color: 'violet' },
   'Founder/Strategy': { icon: Lucide.Flag, color: 'indigo' },
   'Health': { icon: Lucide.Activity, color: 'lime' },
+  'Justice/Power': { icon: Lucide.Scale, color: 'orange' },
   Capstone: { icon: Lucide.Zap, color: 'cyan' },
 };
-
-export const RED_THREADS = [
-  { emoji: '🧠', title: 'Systems Shape Behavior', books: 'Thinking in Systems → Cold Start → Systems Bible → Sapiens' },
-  { emoji: '❤️', title: 'How a Person Becomes Whole', books: 'Frankl → Stoic → Brooks → Letters' },
-  { emoji: '🎨', title: 'Creativity as Constraint', books: 'Bird by Bird → How Music Works → Steal Like an Artist' },
-  { emoji: '🤝', title: 'The Human Interface', books: 'Righteous Mind → How to Know a Person → Meditations → Culture Map → Never Split' },
-];
-
-export const ENERGY_MATCHING = [
-  { label: 'Feeling sharp?', action: 'Do Systems/Strategy' },
-  { label: 'Feeling reflective?', action: 'Do EQ/Letters/Stoic' },
-  { label: 'Feeling mentally foggy?', action: 'Do Creative/Craft' },
-  { label: 'Feeling overstimulated?', action: 'Do Fiction/Sci-Fi' },
-];
 
 export const FICTION_LIBRARY = [
   {
@@ -34,14 +21,16 @@ export const FICTION_LIBRARY = [
       { title: 'Never Let Me Go', author: 'Ishiguro', desc: 'Quiet, haunting, humane sci-fi. Fits your taste exactly.' },
       { title: 'Do Androids Dream of Electric Sheep?', author: 'PKD', desc: 'Blade Runner core text → fits all your interests rn.' },
       { title: 'Fahrenheit 451', author: 'Bradbury', desc: 'Short, powerful, atmospheric.' },
+      { title: 'The Diamond Age', author: 'Neal Stephenson', desc: 'Recursive education and nanotech—explores how technology liberates or stratifies society.' },
     ]
   },
   {
     tier: 'Tier 2 — Psychological / Speculative',
-    description: 'Great when you’re overstimulated.',
+    description: 'Great when you\'re overstimulated.',
     books: [
       { title: 'Annihilation', author: 'Jeff VanderMeer', desc: 'Atmospheric cosmic dread; extremely short; very you.' },
       { title: 'The Ocean at the End of the Lane', author: 'Gaiman', desc: 'Mythic, dark, emotional.' },
+      { title: 'Tropic of Orange', author: 'Karen Tei Yamashita', desc: 'Magical realism meets tech-thriller set in LA and Mexico. Maps onto binational geography.' },
     ]
   },
   {
@@ -98,6 +87,14 @@ export const PLAN = {
       goal: 'Synthesis, scaling, and cognitive stretching.',
       weeks: [13, 14, 15, 16],
     },
+    {
+      id: 'phase5',
+      emoji: '🌎',
+      title: 'Phase 5 · Ethical Capitalist Deep Dive',
+      subtitle: 'Weeks 17–20',
+      goal: 'Bi-national leadership, impact frameworks, and movement building.',
+      weeks: [17, 18, 19, 20],
+    },
   ],
   weeks: [
     {
@@ -107,10 +104,11 @@ export const PLAN = {
       metaIntent: 'Start with purpose and clarity.',
       anchor: 'Anchors purpose + system literacy.',
       smallWin: 'Write one sentence describing a system in my life I want to redesign.',
-      primer: 'Frankl for the "why", Meadows for the "how".',
+      primer: 'Frankl for the "why", Meadows for the "how", Wilkerson for the hidden systems that shape American life.',
       sessions: [
-        { id: 'w1s1', domain: 'Human/EQ', book: 'Man’s Search for Meaning', details: 'Part I.' },
-        { id: 'w1s2', domain: 'Systems/Tech', book: 'Thinking in Systems', details: '“The Basics”.' },
+        { id: 'w1s1', domain: 'Human/EQ', book: 'Man\'s Search for Meaning', details: 'Part I.' },
+        { id: 'w1s2', domain: 'Systems/Tech', book: 'Thinking in Systems', details: '"The Basics".' },
+        { id: 'w1s3', domain: 'Justice/Power', book: 'Caste', details: 'Ch. 1-3: "The Pillars of Caste".' },
       ],
       fiction: {
         title: 'Never Let Me Go',
@@ -126,10 +124,12 @@ export const PLAN = {
       metaIntent: 'Start with the atomic unit of creative work, notice hidden structures.',
       anchor: 'Individual creative practice + design-awareness.',
       smallWin: 'Write a "shitty first draft" of something you\'ve been avoiding.',
-      primer: 'Start with the basics of creative work; society has hidden constraints.',
+      primer: 'As a future leader navigating two nations, understanding America\'s caste system reveals the unwritten rules of power. The Color of Law maps the structural wealth gap you\'ll need to address.',
       sessions: [
         { id: 'w2s1', domain: 'Creative/Craft', book: 'Bird by Bird', details: '"Short Assignments," "Shitty First Drafts".' },
         { id: 'w2s2', domain: 'Society/Philosophy', book: 'Invisible Women', details: 'Intro + Part I (Ch. 1–2).' },
+        { id: 'w2s3', domain: 'Justice/Power', book: 'The Color of Law', details: 'Intro + Ch. 1-2.' },
+        { id: 'w2s4', domain: 'Justice/Power', book: 'Harvest of Empire', details: 'Intro + Part I.' },
       ],
       fiction: {
         title: 'The Ocean at the End of the Lane',
@@ -145,10 +145,12 @@ export const PLAN = {
       metaIntent: 'Understand how creative work fits into the world, understand the mind.',
       anchor: 'Collective creative practice + psychology for understanding people.',
       smallWin: 'Identify one artist/creator whose work you want to "steal from" this week.',
-      primer: 'Creative work lives in networks; intuition drives judgment. (Fiction swap available)',
+      primer: 'Stanley\'s 10 pillars of fascist politics appear in both US and Mexican contexts. Recognizing propaganda and the "mythic past" narrative gives you intellectual ammunition in any room.',
       sessions: [
         { id: 'w3s1', domain: 'Creative/Craft', book: 'Steal Like an Artist', details: 'Ch. 1–5.' },
         { id: 'w3s2', domain: 'Society/Philosophy', book: 'The Righteous Mind', details: 'Part I.' },
+        { id: 'w3s3', domain: 'Justice/Power', book: 'How Fascism Works', details: 'Ch. 1-4: "The Mythic Past, Propaganda".' },
+        { id: 'w3s4', domain: 'Human/EQ', book: 'Nonviolent Communication', details: 'Ch. 1-4.' },
       ],
       fiction: {
         title: 'We Have Always Lived in the Castle',
@@ -164,11 +166,12 @@ export const PLAN = {
       metaIntent: 'Zoom out to systems, zoom in to people, ground in Stoic practice.',
       anchor: 'Chaos-awareness + empathy + inner discipline.',
       smallWin: 'Describe one moment this week where a Systems Bible law showed up IRL.',
-      primer: 'Systems fail naturally; empathy requires seeing past the failure. Meditations bridges Frankl to Stoic practice.',
+      primer: 'Snyder\'s 20 lessons are a practical toolkit for preserving democracy. Cornejo Villavicencio humanizes the "other" in ways that will make you more formidable when advocating in elite spaces.',
       sessions: [
         { id: 'w4s1', domain: 'Systems/Tech', book: 'The Systems Bible', details: 'Core "Systemantics" laws.' },
         { id: 'w4s2', domain: 'Human/EQ', book: 'How to Know a Person', details: 'Ch. 1–4.' },
-        { id: 'w4s3', domain: 'Human/EQ', book: 'Meditations', details: 'Select passages (Book II-IV).' },
+        { id: 'w4s3', domain: 'Justice/Power', book: 'On Tyranny', details: 'All 20 lessons.', tags: ['strategic-protection'] },
+        { id: 'w4s4', domain: 'Justice/Power', book: 'The Undocumented Americans', details: 'Ch. 1-3.', tags: ['strategic-protection'] },
       ],
       fiction: {
         title: 'Do Androids Dream of Electric Sheep?',
@@ -188,6 +191,8 @@ export const PLAN = {
       sessions: [
         { id: 'w5s1', domain: 'Systems/Tech', book: 'Atomic Habits', details: 'Ch. 1–6.' },
         { id: 'w5s2', domain: 'Systems/Tech', book: 'Sapiens', details: 'Part I (Cognitive Revolution).' },
+        { id: 'w5s3', domain: 'Justice/Power', book: 'How Democracies Die', details: 'Part I: "The Guardrails".' },
+        { id: 'w5s4', domain: 'Systems/Tech', book: 'Algorithms of Oppression', details: 'Ch. 1-3.' },
       ],
       fiction: {
         title: 'Fahrenheit 451',
@@ -203,11 +208,12 @@ export const PLAN = {
       metaIntent: 'Create with constraints, ground in biology.',
       anchor: 'Creativity meets real-world systems + longevity science.',
       smallWin: 'Share one piece of work-in-progress with a friend.',
-      primer: 'Music is math with feeling; showing work creates feedback loops. Outlive grounds abstract creativity.',
+      primer: 'Music is math with feeling; showing work creates feedback loops. Outlive grounds abstract creativity. Meditations anchors it all in inner discipline.',
       sessions: [
         { id: 'w6s1', domain: 'Creative/Craft', book: 'How Music Works', details: 'Ch. 1–3.' },
         { id: 'w6s2', domain: 'Creative/Craft', book: 'Show Your Work', details: 'Entire book.' },
         { id: 'w6s3', domain: 'Health', book: 'Outlive', details: 'Intro + Ch. 1-3 (The Long Game).' },
+        { id: 'w6s4', domain: 'Human/EQ', book: 'Meditations', details: 'Select passages (Book II-IV).' },
       ],
       fiction: {
         title: 'The Ocean at the End of the Lane',
@@ -223,11 +229,12 @@ export const PLAN = {
       metaIntent: 'Reflect on power & society.',
       anchor: 'Realpolitik x speculative imagination.',
       smallWin: 'Map the power dynamics in one meeting you attended.',
-      primer: 'Read both as social commentary: one on power, one on evolution.',
+      primer: 'Ben-Ghiat\'s analysis of authoritarian personality applies from AMLO to Trump. Understanding how strongmen weaponize masculinity and corruption prepares you to lead differently.',
       sessions: [
         { id: 'w7s1', domain: 'Society/Philosophy', book: 'The Prince', details: 'Cruelty/mercy, fear/love.' },
         { id: 'w7s2', domain: 'Vision / Fiction', book: 'The Time Machine', details: 'Entire novella.' },
-        { id: 'w7s3', domain: 'Founder/Strategy', book: 'The Culture Map', details: 'Ch. 1-4 (Communicating, Evaluating, Persuading, Leading).' },
+        { id: 'w7s3', domain: 'Founder/Strategy', book: 'The Culture Map', details: 'Ch. 1-4 (Communicating, Evaluating, Persuading, Leading).', tags: ['strategic-protection'] },
+        { id: 'w7s4', domain: 'Justice/Power', book: 'Strongmen', details: 'Ch. 1-3: "The Cult of the Leader".' },
       ],
       fiction: {
         title: 'The Left Hand of Darkness',
@@ -241,13 +248,14 @@ export const PLAN = {
       phaseId: 'phase3',
       title: 'Cold Start Problem (Movee CORE)',
       metaIntent: 'Build your founder core.',
-      anchor: 'Entirely for Movee’s network engine.',
-      smallWin: 'Sketch Movee’s atomic network on napkin-level detail.',
-      primer: 'The hard part isn\'t scaling, it\'s starting.',
+      anchor: 'Entirely for Movee\'s network engine.',
+      smallWin: 'Sketch Movee\'s atomic network on napkin-level detail.',
+      primer: 'Giridharadas\'s critique is your mirror—read it to ensure your future philanthropy creates real change, not just brand. Mackey offers the framework for stakeholder-driven wealth creation.',
       sessions: [
         { id: 'w8s1', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: 'Part I: "The Cold Start Theory".' },
         { id: 'w8s2', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: 'Part II: "Atomic Networks".' },
         { id: 'w8s3', domain: 'Founder/Strategy', book: 'Thinking in Bets', details: 'Ch. 1-4 (Embracing Uncertainty).' },
+        { id: 'w8s4', domain: 'Justice/Power', book: 'Winners Take All', details: 'Part I.' },
       ],
       fiction: {
         title: 'The Sense of an Ending',
@@ -263,10 +271,12 @@ export const PLAN = {
       metaIntent: 'See where systems crack.',
       anchor: 'How systems break + how civilizations scaled/broke.',
       smallWin: 'Identify a "failure mode" in a tool you use daily.',
-      primer: 'Scale creates fragility; know where the cracks form. (Fiction swap available)',
+      primer: 'De León\'s anthropology reveals how US policy weaponizes geography. As someone who will cross this border as a citizen of both worlds, this knowledge is both personal and strategic.',
       sessions: [
         { id: 'w9s1', domain: 'Systems/Tech', book: 'Sapiens', details: 'Part II (Agricultural Revolution).' },
         { id: 'w9s2', domain: 'Systems/Tech', book: 'The Systems Bible', details: 'Failure modes section.' },
+        { id: 'w9s3', domain: 'Justice/Power', book: 'The Color of Law', details: 'Ch. 3-5 (continuation).' },
+        { id: 'w9s4', domain: 'Justice/Power', book: 'The Land of Open Graves', details: 'Intro + Part I.' },
       ],
       fiction: {
         title: 'Annihilation',
@@ -307,6 +317,7 @@ export const PLAN = {
       sessions: [
         { id: 'w11s1', domain: 'Human/EQ', book: 'Letters to a Young Poet', details: 'Letters 1–3.' },
         { id: 'w11s2', domain: 'Creative/Craft', book: 'How Music Works', details: 'Ch. 4–6.' },
+        { id: 'w11s3', domain: 'Justice/Power', book: 'The Line Becomes a River', details: 'Part I (Ch. 1-2).' },
       ],
       fiction: {
         title: 'The Ocean at the End of the Lane',
@@ -326,7 +337,8 @@ export const PLAN = {
       sessions: [
         { id: 'w12s1', domain: 'Systems/Tech', book: 'Gödel, Escher, Bach', details: '"MU Puzzle" + first Tortoise dialogue.' },
         { id: 'w12s2', domain: 'Systems/Tech', book: 'I Am a Strange Loop', details: 'Ch. 1-3 (Introduction to Strange Loops).' },
-        { id: 'w12s3', domain: 'Founder/Strategy', book: 'The Psychology of Money', details: 'Key chapters (1–4, 11).' },
+        { id: 'w12s3', domain: 'Founder/Strategy', book: 'The Psychology of Money', details: 'Key chapters (1–4, 11).', tags: ['strategic-protection'] },
+        { id: 'w12s4', domain: 'Systems/Tech', book: 'The Age of Surveillance Capitalism', details: 'Part I: The Foundations.' },
       ],
       fiction: {
         title: 'The Left Hand of Darkness',
@@ -342,10 +354,12 @@ export const PLAN = {
       metaIntent: 'Study unity and utopia.',
       anchor: 'Societal synthesis + philosophical fiction.',
       smallWin: 'Compare Anarres to a modern startup culture.',
-      primer: 'Utopia is ambiguous; unity is messy.',
+      primer: 'Sapiens tracks human unification. The Dispossessed questions what unity costs. Twilight of Democracy shows democracies backsliding. Conscious Capitalism offers an alternative: stakeholder-driven value creation.',
       sessions: [
         { id: 'w13s1', domain: 'Systems/Tech', book: 'Sapiens', details: 'Part III (Unification of Humankind).' },
         { id: 'w13s2', domain: 'Vision / Fiction', book: 'The Dispossessed', details: 'First 4–5 chapters.' },
+        { id: 'w13s3', domain: 'Justice/Power', book: 'Twilight of Democracy', details: 'Key chapters.' },
+        { id: 'w13s4', domain: 'Justice/Power', book: 'Conscious Capitalism', details: 'Ch. 1-3: "Higher Purpose".' },
       ],
       fiction: {
         title: 'The Left Hand of Darkness',
@@ -361,10 +375,11 @@ export const PLAN = {
       metaIntent: 'Loop inward, ground outward.',
       anchor: 'Cognitive stretching + grounding.',
       smallWin: 'Meditate on a "Strange Loop" in your own thinking.',
-      primer: 'The mind is a loop; stoicism is the anchor.',
+      primer: 'The mind is a loop; stoicism is the anchor. The Line Becomes a River explores borders as both physical and moral constructs.',
       sessions: [
         { id: 'w14s1', domain: 'Systems/Tech', book: 'Gödel, Escher, Bach', details: 'Next core dialogue.' },
         { id: 'w14s2', domain: 'Human/EQ', book: 'The Essential Stoic', details: 'Final passages.' },
+        { id: 'w14s3', domain: 'Justice/Power', book: 'The Line Becomes a River', details: 'Part II (Ch. 3-4).' },
       ],
       fiction: {
         title: 'The Sense of an Ending',
@@ -380,10 +395,11 @@ export const PLAN = {
       metaIntent: 'Think in tipping points.',
       anchor: 'Directly relevant to Movee scaling in Madison.',
       smallWin: 'Draft the "Tipping Point" strategy for Movee.',
-      primer: 'Expansion requires breaking the initial constraints.',
+      primer: 'Cold Start teaches network expansion. Kahneman shows cognitive biases in decision-making. The Dictator\'s Handbook reveals game-theoretic power dynamics—applicable to both autocrats and corporate leaders.',
       sessions: [
         { id: 'w15s1', domain: 'Founder/Strategy', book: 'The Cold Start Problem', details: '"Tipping Point" + "Escape Velocity".' },
         { id: 'w15s2', domain: 'Systems/Tech', book: 'Thinking, Fast and Slow', details: 'Part I (Two Systems).' },
+        { id: 'w15s3', domain: 'Founder/Strategy', book: 'The Dictator\'s Handbook', details: 'Ch. 1-3: The Rules of Power.' },
       ],
       fiction: {
         title: 'The Ocean at the End of the Lane',
@@ -398,15 +414,98 @@ export const PLAN = {
       metaIntent: 'Integrate & prepare the next arc.',
       anchor: 'Scientific Revolution + Fiction Reward.',
       smallWin: 'Plan your next 16-week cycle (or rest week).',
-      primer: 'The end is a new beginning.',
+      primer: 'Sapiens concludes with the Scientific Revolution. House of Leaves rewards your creative journey. Caste continuation and How Democracies Die Part II ground you in systems of power before Phase 5.',
       sessions: [
         { id: 'w16s1', domain: 'Systems/Tech', book: 'Sapiens', details: 'Part IV (Scientific Revolution).' },
         { id: 'w16s2', domain: 'Vision / Fiction', book: 'House of Leaves', details: 'Begin as reward (optional).' },
+        { id: 'w16s3', domain: 'Justice/Power', book: 'Caste', details: 'Ch. 4-6 (continuation).' },
+        { id: 'w16s4', domain: 'Justice/Power', book: 'How Democracies Die', details: 'Part II: "Subverting Democracy".' },
       ],
       fiction: {
         title: 'ANY from your library',
         author: '',
         match: 'This week is purely vibes.',
+      },
+    },
+    {
+      id: 17,
+      phaseId: 'phase5',
+      title: 'The Border as System',
+      metaIntent: 'Understand immigration as structural violence and policy failure.',
+      anchor: 'Policy history + contemporary reporting.',
+      smallWin: 'Map one policy decision that affected your family or community.',
+      primer: 'Blitzer gives you the narrative arc; Garcia/Marinari give you the academic framework. Together they arm you for any immigration debate.',
+      sessions: [
+        { id: 'w17s1', domain: 'Justice/Power', book: 'Everyone Who Is Gone Is Here', details: 'Part I: The System.' },
+        { id: 'w17s2', domain: 'Justice/Power', book: 'Whose America?', details: 'Selected essays on post-1980 policy.' },
+        { id: 'w17s3', domain: 'Systems/Tech', book: 'The Big Ditch', details: 'Selected chapters on infrastructure and power.' },
+        { id: 'w17s4', domain: 'Justice/Power', book: 'How Fascism Works', details: 'Ch. 5-7 (continuation).' },
+      ],
+      fiction: {
+        title: 'The Undocumented Americans',
+        author: 'Cornejo Villavicencio',
+        match: 'Revisit or continue from W4.',
+        runnerUp: 'Tell Me How It Ends',
+      },
+    },
+    {
+      id: 18,
+      phaseId: 'phase5',
+      title: 'Understanding Mexico',
+      metaIntent: 'Build intellectual fluency in Mexican political history.',
+      anchor: 'Historical sweep + contemporary analysis.',
+      smallWin: 'Identify three parallels between Mexican and US political dynamics.',
+      primer: 'Krauze\'s Biography of Power tells Mexico through its caudillos. Edmonds-Poli brings you to the present. Essential for bi-national credibility.',
+      sessions: [
+        { id: 'w18s1', domain: 'Society/Philosophy', book: 'Mexico: Biography of Power', details: 'The Revolutionary Era + Cárdenas.' },
+        { id: 'w18s2', domain: 'Society/Philosophy', book: 'Contemporary Mexican Politics', details: 'Ch. 1-4: Institutions, Parties, Elections.' },
+        { id: 'w18s3', domain: 'Justice/Power', book: 'Tell Me How It Ends', details: 'Full book.' },
+      ],
+      fiction: {
+        title: 'The Left Hand of Darkness',
+        author: 'Le Guin',
+        match: 'Politics, duality, and negotiating difference.',
+        runnerUp: 'The Dispossessed',
+      },
+    },
+    {
+      id: 19,
+      phaseId: 'phase5',
+      title: 'Capital as Tool',
+      metaIntent: 'Learn frameworks for deploying capital with measurable impact.',
+      anchor: 'VC-style impact + Grameen-style social business.',
+      smallWin: 'Draft a one-page "impact thesis" for your future ventures.',
+      primer: 'Cohen invented impact investing. Yunus invented microfinance. Mazzucato distinguishes value creation from extraction. Together, they form your ethical capital operating system.',
+      sessions: [
+        { id: 'w19s1', domain: 'Founder/Strategy', book: 'Impact', details: 'Ch. 1-5: The Impact Revolution.' },
+        { id: 'w19s2', domain: 'Founder/Strategy', book: 'Building Social Business', details: 'Part I: A New Kind of Capitalism.' },
+        { id: 'w19s3', domain: 'Founder/Strategy', book: 'The Value of Everything', details: 'Ch. 1-3: Value Creation vs Extraction.' },
+      ],
+      fiction: {
+        title: 'The Dispossessed',
+        author: 'Le Guin',
+        match: 'Ambiguous utopia—what does a different economy look like?',
+        runnerUp: 'Never Let Me Go',
+      },
+    },
+    {
+      id: 20,
+      phaseId: 'phase5',
+      title: 'Building Power',
+      metaIntent: 'Understand how movements create systemic change.',
+      anchor: 'Theory of nonviolent disruption + practical organizing tactics.',
+      smallWin: 'Identify one cause you would fund, organize, or lead. Define your role.',
+      primer: 'Alinsky wrote the rules. The Englers show how modern movements win. This is the final synthesis: you now understand systems, power, capital, and how to move people.',
+      sessions: [
+        { id: 'w20s1', domain: 'Justice/Power', book: 'This Is an Uprising', details: 'Part I-II: The Craft of Uprising.' },
+        { id: 'w20s2', domain: 'Justice/Power', book: 'Rules for Radicals', details: 'Core tactics chapters.' },
+        { id: 'w20s3', domain: 'Founder/Strategy', book: 'Strategy: A History', details: 'Part IV: Strategy from Below.' },
+      ],
+      fiction: {
+        title: 'ANY from your library',
+        author: '',
+        match: 'Celebration week. You completed the 20-week ethical capitalist curriculum.',
+        runnerUp: '',
       },
     },
   ],

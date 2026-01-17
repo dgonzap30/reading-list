@@ -63,20 +63,3 @@ export function classifyNote(noteText) {
 
   return ranked.slice(0, 2);
 }
-
-/**
- * Get section metadata by key
- */
-export function getSection(sectionKey) {
-  return SECTIONS[sectionKey] || null;
-}
-
-/**
- * Get all section keys with metadata
- */
-export function getAllSections() {
-  return Object.entries(SECTIONS).map(([key, value]) => ({
-    key,
-    ...value
-  }));
-}
