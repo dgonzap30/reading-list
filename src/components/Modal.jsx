@@ -2,22 +2,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as Lucide from 'lucide-react';
 import { useEffect } from 'react';
 import clsx from 'clsx';
+import { useEscapeKey } from '../hooks/useEscapeKey.js';
 
-export function Modal({ isOpen, onClose, title, children, prompt, size = 'default' }) {
+export function Modal({ isOpen, onClose, title, children, prompt, size = 'default', icon: Icon }) {
     // Close on escape key
+    useEscapeKey(onClose, isOpen);
+
+    // Manage body overflow
     useEffect(() => {
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') onClose();
-        };
         if (isOpen) {
-            document.addEventListener('keydown', handleEscape);
             document.body.style.overflow = 'hidden';
         }
         return () => {
-            document.removeEventListener('keydown', handleEscape);
             document.body.style.overflow = 'unset';
         };
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
     const sizeClasses = {
         default: 'max-w-2xl',
@@ -50,10 +49,18 @@ export function Modal({ isOpen, onClose, title, children, prompt, size = 'defaul
                             <div className="relative flex flex-col rounded-xl border border-white/20 bg-black shadow-2xl overflow-hidden">
                                 {/* Header */}
                                 <div className="flex items-center justify-between border-b border-white/5 px-6 py-4 shrink-0">
-                                    <h3 className="text-lg font-semibold text-white">{title}</h3>
+                                    <div className="flex items-center gap-2">
+                                        {Icon && (
+                                            <div className="p-1.5 rounded-lg bg-white/[0.03] text-white/50">
+                                                <Icon className="h-4 w-4" />
+                                            </div>
+                                        )}
+                                        <h3 className="text-lg font-semibold text-white">{title}</h3>
+                                    </div>
                                     <button
                                         onClick={onClose}
                                         className="rounded-full p-2 text-white/50 transition hover:bg-black hover:text-white"
+                                        aria-label="Close modal"
                                     >
                                         <Lucide.X className="h-5 w-5" />
                                     </button>

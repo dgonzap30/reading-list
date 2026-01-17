@@ -1,20 +1,11 @@
-import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Lucide from 'lucide-react';
 import clsx from 'clsx';
 import { STATES } from '../data/sections.js';
+import { useEscapeKey } from '../hooks/useEscapeKey.js';
 
 export function StateCheck({ isOpen, onSelect, onSkip, sessionLabel }) {
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') onSkip();
-    };
-
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onSkip]);
+  useEscapeKey(onSkip, isOpen);
 
   if (!isOpen) return null;
 

@@ -2,17 +2,21 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import * as Lucide from 'lucide-react';
 import { Command } from 'cmdk';
+import { useEscapeKey } from '../hooks/useEscapeKey.js';
 
 export function CommandPalette({ open, setOpen, plan, jumpToWeek, markAllWeek }) {
   const [query, setQuery] = useState('');
 
+  // Close on Escape key
+  useEscapeKey(() => setOpen(false), open);
+
+  // Handle Cmd+K / Ctrl+K to open
   useEffect(() => {
     const onKey = (event) => {
       if ((event.key === 'k' || event.key === 'K') && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         setOpen(true);
       }
-      if (event.key === 'Escape') setOpen(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

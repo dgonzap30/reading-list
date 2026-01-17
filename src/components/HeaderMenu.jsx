@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import * as Lucide from 'lucide-react';
 import { DatePicker } from './DatePicker.jsx';
+import { useClickOutside } from '../hooks/useClickOutside.js';
 
 export function HeaderMenu({
   startDate,
@@ -19,18 +20,8 @@ export function HeaderMenu({
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
+  // Close menu when clicking outside
+  useClickOutside(menuRef, () => setIsOpen(false), isOpen);
 
   return (
     <div className="relative" ref={menuRef}>

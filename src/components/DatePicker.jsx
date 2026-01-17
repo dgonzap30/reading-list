@@ -13,6 +13,8 @@ import {
   startOfWeek,
 } from 'date-fns';
 import * as Lucide from 'lucide-react';
+import { useEscapeKey } from '../hooks/useEscapeKey.js';
+import { useClickOutside } from '../hooks/useClickOutside.js';
 
 const isoFormat = (date) => format(date, 'yyyy-MM-dd');
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -29,22 +31,11 @@ export function DatePicker({ value, onChange }) {
     }
   }, [value]);
 
-  useEffect(() => {
-    if (!open) return undefined;
-    const onKey = (event) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    const onClick = (event) => {
-      if (!panelRef.current) return;
-      if (!panelRef.current.contains(event.target)) setOpen(false);
-    };
-    document.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onClick);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onClick);
-    };
-  }, [open]);
+  // Close on Escape key
+  useEscapeKey(() => setOpen(false), open);
+
+  // Close on click outside
+  useClickOutside(panelRef, () => setOpen(false), open);
 
   const calendarDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(viewDate), { weekStartsOn: 1 });
