@@ -32,6 +32,7 @@ export function Header({
   fragments = {},
   onOpenFragments,
   onOpenBooks,
+  onToggleSidebar,
 }) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const pct = Math.round(progress * 100);
@@ -42,10 +43,17 @@ export function Header({
 
   return (
     <>
-      {/* Mobile: Combined sticky bar with progress + week pills */}
+      {/* Mobile: Combined sticky bar with progress + actions */}
       <div className="lg:hidden sticky top-0 z-30 bg-black/90 backdrop-blur-xl border-b border-white/20">
-        {/* Row 1: Progress + Stats + Actions */}
-        <div className="flex items-center justify-between px-4 py-2.5">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button
+            onClick={onToggleSidebar}
+            className="flex items-center justify-center rounded-lg border border-white/20 bg-black p-2 text-white transition hover:bg-white/[0.05]"
+            aria-label="Toggle sidebar"
+          >
+            <Lucide.Menu className="h-5 w-5" />
+          </button>
+
           <div className="flex items-center gap-3">
             <div className="relative">
               <ProgressRing percent={pct} size={36} />
@@ -58,6 +66,7 @@ export function Header({
               <span className="text-white/60 ml-1">Day {planDay}</span>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
             {streak > 0 && (
               <div className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black px-2 py-1 text-xs text-white">
@@ -73,29 +82,11 @@ export function Header({
             </button>
           </div>
         </div>
-
-        {/* Row 2: Week pills */}
-        <div className="overflow-x-auto no-scrollbar px-4 pb-2.5 flex gap-2">
-          {weeks.map((week) => (
-            <button
-              key={week.id}
-              onClick={() => onJumpToWeek?.(week.id)}
-              className={clsx(
-                'flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
-                week.id === currentWeek
-                  ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200'
-                  : 'bg-black border-white/20 text-white/60'
-              )}
-            >
-              W{week.id}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* Desktop: Simplified header */}
+      {/* Desktop: Full-width header spanning sidebar + content */}
       <header className="hidden lg:block sticky top-0 z-30 border-b border-white/20 bg-black/90 backdrop-blur-xl text-white/90">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
+        <div className="flex items-center justify-between px-4 py-3 md:px-6">
           <div className="flex items-center gap-4">
             <div className="relative">
               <ProgressRing percent={pct} size={56} />
@@ -119,20 +110,32 @@ export function Header({
             </div>
           </div>
 
-          <HeaderMenu
-            startDate={startDate}
-            setStartDate={setStartDate}
-            books={books}
-            extraBooks={extraBooks}
-            onExport={onExport}
-            onImport={onImport}
-            onReset={onReset}
-            onReview={() => setIsReviewOpen(true)}
-            onOpenFragments={onOpenFragments}
-            fragmentCount={fragmentCount}
-            onOpenCmd={onOpenCmd}
-            onOpenBooks={onOpenBooks}
-          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onOpenCmd}
+              className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl border border-white/20 text-white/60 hover:text-white hover:bg-white/[0.03] transition"
+              aria-label="Open command palette"
+            >
+              <Lucide.Command className="h-4 w-4" />
+              <span className="text-sm">Search...</span>
+              <kbd className="ml-2 text-xs border border-white/20 px-1.5 py-0.5 rounded">⌘K</kbd>
+            </button>
+
+            <HeaderMenu
+              startDate={startDate}
+              setStartDate={setStartDate}
+              books={books}
+              extraBooks={extraBooks}
+              onExport={onExport}
+              onImport={onImport}
+              onReset={onReset}
+              onReview={() => setIsReviewOpen(true)}
+              onOpenFragments={onOpenFragments}
+              fragmentCount={fragmentCount}
+              onOpenCmd={onOpenCmd}
+              onOpenBooks={onOpenBooks}
+            />
+          </div>
         </div>
       </header>
 
