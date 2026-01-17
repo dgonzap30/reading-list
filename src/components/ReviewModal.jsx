@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import * as Lucide from 'lucide-react';
 import { PLAN } from '../data/plan.js';
+import { Modal } from './Modal.jsx';
 
 export function ReviewModal({ isOpen, onClose, notes }) {
     const [reviewItem, setReviewItem] = useState(null);
@@ -32,70 +32,39 @@ export function ReviewModal({ isOpen, onClose, notes }) {
     }, [isOpen, notes]);
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-                    />
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="w-full max-w-lg pointer-events-auto"
-                        >
-                            <div className="relative overflow-hidden rounded-xl border border-white/20 bg-black shadow-2xl">
-                                <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-1.5 rounded-lg bg-white/[0.03] text-white/50">
-                                            <Lucide.Repeat className="h-4 w-4" />
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-white">Spaced Review</h3>
-                                    </div>
-                                    <button onClick={onClose} className="rounded-full p-2 text-white/50 hover:bg-black hover:text-white">
-                                        <Lucide.X className="h-5 w-5" />
-                                    </button>
-                                </div>
-
-                                <div className="p-6">
-                                    {reviewItem ? (
-                                        <div className="space-y-6">
-                                            <div>
-                                                <p className="text-xs uppercase tracking-wider text-white/40 mb-1">From Week {reviewItem.weekId}</p>
-                                                <h4 className="text-xl font-medium text-white">{reviewItem.book}</h4>
-                                                <p className="text-sm text-white/60">{reviewItem.details}</p>
-                                            </div>
-
-                                            <div className="relative">
-                                                <div className="absolute -left-3 top-0 bottom-0 w-1 bg-gradient-to-b from-white/20 to-transparent rounded-full" />
-                                                <div className="pl-4">
-                                                    <p className="text-white/90 italic leading-relaxed">"{reviewItem.note}"</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="pt-4 border-t border-white/5">
-                                                <p className="text-sm font-medium text-white/60 mb-2">Reflection Prompt</p>
-                                                <p className="text-white/70 text-sm">How does this insight apply to your current challenges today?</p>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="text-center py-8 text-white/50">
-                                            <Lucide.BookOpen className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                                            <p>No notes found to review yet.</p>
-                                            <p className="text-sm mt-2">Start taking notes in your sessions to build your library.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </motion.div>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Spaced Review"
+            icon={Lucide.Repeat}
+        >
+            {reviewItem ? (
+                <div className="space-y-6">
+                    <div>
+                        <p className="text-xs uppercase tracking-wider text-white/40 mb-1">From Week {reviewItem.weekId}</p>
+                        <h4 className="text-xl font-medium text-white">{reviewItem.book}</h4>
+                        <p className="text-sm text-white/60">{reviewItem.details}</p>
                     </div>
-                </>
+
+                    <div className="relative">
+                        <div className="absolute -left-3 top-0 bottom-0 w-1 bg-gradient-to-b from-white/20 to-transparent rounded-full" />
+                        <div className="pl-4">
+                            <p className="text-white/90 italic leading-relaxed">"{reviewItem.note}"</p>
+                        </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-white/5">
+                        <p className="text-sm font-medium text-white/60 mb-2">Reflection Prompt</p>
+                        <p className="text-white/70 text-sm">How does this insight apply to your current challenges today?</p>
+                    </div>
+                </div>
+            ) : (
+                <div className="text-center py-8 text-white/50">
+                    <Lucide.BookOpen className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                    <p>No notes found to review yet.</p>
+                    <p className="text-sm mt-2">Start taking notes in your sessions to build your library.</p>
+                </div>
             )}
-        </AnimatePresence>
+        </Modal>
     );
 }
