@@ -59,8 +59,17 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
             {isExternal && (
               <>
                 <button
-                  onClick={onClearBlock}
+                  onClick={() => {
+                    if (displayRemaining > 0) {
+                      if (window.confirm('Stop the current timer? Progress will be lost.')) {
+                        onClearBlock();
+                      }
+                    } else {
+                      onClearBlock();
+                    }
+                  }}
                   className="inline-flex items-center gap-1 rounded-xl bg-white/[0.03] px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20"
+                  aria-label="Stop timer"
                 >
                   <Lucide.StopCircle className="h-4 w-4" />
                   Stop
@@ -68,6 +77,7 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="inline-flex items-center gap-1 rounded-xl border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white"
+                  aria-label="Jump to start of page"
                 >
                   <Lucide.Navigation className="h-4 w-4" />
                   Jump to start
@@ -79,6 +89,7 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
                 <button
                   onClick={pause}
                   className="inline-flex items-center gap-1 rounded-xl bg-white/[0.03] px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20"
+                  aria-label="Pause timer"
                 >
                   <Lucide.Pause className="h-4 w-4" />
                   Pause
@@ -86,6 +97,7 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
                 <button
                   onClick={reset}
                   className="inline-flex items-center gap-1 rounded-xl border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white"
+                  aria-label="Reset timer"
                 >
                   <Lucide.RotateCcw className="h-4 w-4" />
                   Reset
@@ -97,6 +109,7 @@ export function Timer({ onComplete, activeSession, onStartBlock, onClearBlock })
                 <button
                   onClick={resume}
                   className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500/20"
+                  aria-label="Resume timer"
                 >
                   <Lucide.Play className="h-4 w-4" />
                   Resume

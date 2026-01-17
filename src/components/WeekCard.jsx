@@ -103,13 +103,19 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
           <button
             onClick={() => markWeek(true)}
             className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            aria-label={`Mark all sessions complete for Week ${week.id}`}
           >
             <Lucide.CheckSquare className="h-3.5 w-3.5" />
             Mark all
           </button>
           <button
-            onClick={() => markWeek(false)}
+            onClick={() => {
+              if (window.confirm('Clear all sessions for this week? This action cannot be undone.')) {
+                markWeek(false);
+              }
+            }}
             className="inline-flex items-center gap-1 rounded-xl border border-white/15 px-3 py-1 text-xs text-white/70 hover:border-white/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            aria-label={`Clear all sessions for Week ${week.id}`}
           >
             <Lucide.Eraser className="h-3.5 w-3.5" />
             Clear
@@ -118,6 +124,7 @@ export function WeekCard({ week, state, setState, isCurrent, expanded, onToggle,
             <button
               onClick={() => setIsWeeklySummaryOpen(true)}
               className="inline-flex items-center gap-1 rounded-xl bg-black px-3 py-1 text-xs font-semibold text-white/80 hover:bg-white/[0.03] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              aria-label={`View summary for Week ${week.id}`}
             >
               <Lucide.FileText className="h-3.5 w-3.5" />
               Summary
