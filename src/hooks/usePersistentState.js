@@ -44,7 +44,8 @@ export function usePersistentState(initialValue) {
       }
 
       return raw ? migrateState(JSON.parse(raw)) : initialValue;
-    } catch {
+    } catch (error) {
+      console.warn('[usePersistentState] Failed to load state from localStorage:', error);
       return initialValue;
     }
   });
@@ -53,8 +54,8 @@ export function usePersistentState(initialValue) {
     if (typeof window === 'undefined') return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch {
-      /* ignore storage errors */
+    } catch (error) {
+      console.warn('[usePersistentState] Failed to save state to localStorage:', error);
     }
   }, [state]);
 
