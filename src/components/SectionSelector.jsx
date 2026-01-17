@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import * as Lucide from 'lucide-react';
 import { SECTIONS } from '../data/sections.js';
+import { getSectionClasses } from '../utils/sectionColors.js';
 
 export function SectionSelector({ selected, onSelect, suggestions = [], className }) {
   const sectionKeys = Object.keys(SECTIONS);
@@ -36,6 +37,7 @@ export function SectionSelector({ selected, onSelect, suggestions = [], classNam
           const suggested = isSuggested(key);
           const confidence = getSuggestionConfidence(key);
           const Icon = Lucide[section.icon];
+          const colorClasses = getSectionClasses(section.color);
 
           return (
             <button
@@ -45,9 +47,12 @@ export function SectionSelector({ selected, onSelect, suggestions = [], classNam
               className={clsx(
                 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all',
                 isSelected ? [
-                  `bg-${section.color}-500/30 text-${section.color}-100`,
-                  `border-2 border-${section.color}-500/60`,
-                  `ring-2 ring-${section.color}-500/20`,
+                  colorClasses.bgMedium,
+                  colorClasses.textLight,
+                  'border-2',
+                  colorClasses.border,
+                  'ring-2',
+                  colorClasses.ring,
                 ] : [
                   'bg-black text-white/70 border border-white/20',
                   'hover:bg-white/[0.03] hover:border-white/20',

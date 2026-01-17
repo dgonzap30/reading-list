@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { WritingPanel } from './WritingPanel.jsx';
 import { getRandomQuote } from '../data/quotes.js';
 import { SECTIONS } from '../data/sections.js';
+import { getSectionClasses } from '../utils/sectionColors.js';
 
 export function FictionSessionRow({
   fiction,
@@ -81,14 +82,18 @@ export function FictionSessionRow({
                                         {writing.idea.slice(0, 100)}{writing.idea.length > 100 ? '...' : ''}
                                     </p>
                                 )}
-                                {writing.sectionTag && (
-                                    <span className={clsx(
-                                        'inline-block text-[10px] px-2 py-0.5 rounded-full mt-1',
-                                        `bg-${SECTIONS[writing.sectionTag]?.color}-500/20 text-${SECTIONS[writing.sectionTag]?.color}-300`
-                                    )}>
-                                        {SECTIONS[writing.sectionTag]?.label}
-                                    </span>
-                                )}
+                                {writing.sectionTag && (() => {
+                                    const colorClasses = getSectionClasses(SECTIONS[writing.sectionTag]?.color);
+                                    return (
+                                        <span className={clsx(
+                                            'inline-block text-[10px] px-2 py-0.5 rounded-full mt-1',
+                                            colorClasses.bg,
+                                            colorClasses.text
+                                        )}>
+                                            {SECTIONS[writing.sectionTag]?.label}
+                                        </span>
+                                    );
+                                })()}
                             </div>
                         ) : (
                             <p className="text-white/40 text-sm">Capture your insights...</p>

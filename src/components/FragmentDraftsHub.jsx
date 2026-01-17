@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as Lucide from 'lucide-react';
 import clsx from 'clsx';
 import { SECTIONS, FRAGMENT_STATUSES } from '../data/sections.js';
-import { getActiveFragments, searchFragments, getFragmentsBySourceType } from '../utils/fragmentHelpers.js';
+import { getActiveFragments, searchFragments } from '../utils/fragmentHelpers.js';
+import { getSectionClasses } from '../utils/sectionColors.js';
 
 export function FragmentDraftsHub({
   isOpen,
@@ -90,6 +91,7 @@ export function FragmentDraftsHub({
                       ? 'bg-white/[0.03] text-white'
                       : 'text-white/40 hover:text-white/60'
                   )}
+                  aria-label="Grid view"
                 >
                   <Lucide.LayoutGrid className="h-4 w-4" />
                 </button>
@@ -101,6 +103,7 @@ export function FragmentDraftsHub({
                       ? 'bg-white/[0.03] text-white'
                       : 'text-white/40 hover:text-white/60'
                   )}
+                  aria-label="List view"
                 >
                   <Lucide.List className="h-4 w-4" />
                 </button>
@@ -110,6 +113,7 @@ export function FragmentDraftsHub({
               <button
                 onClick={onClose}
                 className="p-2 rounded-lg hover:bg-white/[0.03] text-white/60 hover:text-white transition"
+                aria-label="Close fragments view"
               >
                 <Lucide.X className="h-5 w-5" />
               </button>
@@ -221,6 +225,8 @@ function FragmentCard({ fragment, viewMode, onEdit, onUpdateStatus }) {
   const section = SECTIONS[fragment.sectionTag];
   const Icon = section ? Lucide[section.icon] : Lucide.FileText;
   const statusColor = FRAGMENT_STATUSES.find(s => s.id === fragment.status)?.color || 'gray';
+  const sectionColorClasses = getSectionClasses(section?.color);
+  const statusColorClasses = getSectionClasses(statusColor);
 
   const preview = fragment.content.length > 150
     ? fragment.content.slice(0, 150) + '...'
@@ -233,7 +239,8 @@ function FragmentCard({ fragment, viewMode, onEdit, onUpdateStatus }) {
       animate={{ opacity: 1, y: 0 }}
       className={clsx(
         'rounded-xl border border-white/20 bg-black p-4 hover:border-white/20 transition group cursor-pointer',
-        `border-l-4 border-l-${section?.color}-500/60`
+        'border-l-4',
+        sectionColorClasses.borderLeft
       )}
       onClick={onEdit}
     >
@@ -255,7 +262,8 @@ function FragmentCard({ fragment, viewMode, onEdit, onUpdateStatus }) {
         </div>
         <span className={clsx(
           'text-xs px-2 py-0.5 rounded-full',
-          `bg-${statusColor}-500/20 text-${statusColor}-300`
+          statusColorClasses.bg,
+          statusColorClasses.text
         )}>
           {fragment.status}
         </span>
