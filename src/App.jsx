@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Toaster, toast } from 'react-hot-toast';
 import * as Lucide from 'lucide-react';
-import { format } from 'date-fns';
+import { format, startOfWeek, addWeeks, parseISO, addDays } from 'date-fns';
 import clsx from 'clsx';
 import { PLAN, DOMAIN, FICTION_LIBRARY } from './data/plan.js';
 import { Header } from './components/Header.jsx';
@@ -15,33 +15,31 @@ import { SipsAndSwaps } from './components/SipsAndSwaps.jsx';
 import { TodayCard } from './components/TodayCard.jsx';
 import { WeekZeroCard } from './components/WeekZeroCard.jsx';
 import { CommandPalette } from './components/CommandPalette.jsx';
-import { Badges, computeBadges } from './components/Badges.jsx';
+import { Badges } from './components/Badges.jsx';
 import { SessionTicker } from './components/SessionTicker.jsx';
 import { FocusOverlay } from './components/FocusOverlay.jsx';
 import { Heatmap } from './components/Heatmap.jsx';
 import { FragmentDraftsHub } from './components/FragmentDraftsHub.jsx';
 import { StateCheck } from './components/StateCheck.jsx';
 import { BookLibrary } from './components/BookLibrary.jsx';
+// New components for calendar view
+import { DaySelector } from './components/DaySelector.jsx';
+import { CollapsibleHeatmap } from './components/CollapsibleHeatmap.jsx';
+import { TodayFocusCard } from './components/TodayFocusCard.jsx';
+import { WeekSessionList } from './components/WeekSessionList.jsx';
+import { InsightSlideOut } from './components/InsightSlideOut.jsx';
+import { CustomEntryModal } from './components/CustomEntryModal.jsx';
+// Dashboard layout components
+import { DashboardLayout } from './components/layout/DashboardLayout.jsx';
+import { Sidebar } from './components/layout/Sidebar.jsx';
+import { WeekHeader } from './components/dashboard/WeekHeader.jsx';
+import { WeekSchedule } from './components/dashboard/WeekSchedule.jsx';
+import { NextWeekPreview } from './components/dashboard/NextWeekPreview.jsx';
 
-import { usePersistentState } from './hooks/usePersistentState.js';
+import { useReadingPlan } from './hooks/useReadingPlan.js';
 import { diffWeeks, todayYMD, diffDays } from './utils/date.js';
 import { exportPlanToICS } from './utils/exportICS.js';
 import { createFragment } from './utils/fragmentHelpers.js';
-
-const createInitialState = () => ({
-  checks: {},
-  notes: {},              // Keep for backward compat
-  weekNotes: {},          // Keep for backward compat
-  startDate: todayYMD(),
-  activityDates: {},
-  _schemaVersion: 2,
-  writings: {},           // NEW: structured writing
-  stateChecks: {},        // NEW: pre-session state
-  fragments: {},          // NEW: polished fragments
-  weeklySummaries: {},    // NEW: weekly summaries
-  writingGoals: null,     // NEW: cycle goals
-  fictionSwaps: {},       // NEW: weekId -> 'runnerUp' | null
-});
 
 function StatCard({ icon: Icon, label, value, caption, isPrimary, progress }) {
   return (
@@ -72,9 +70,25 @@ function StatCard({ icon: Icon, label, value, caption, isPrimary, progress }) {
 }
 
 export default function App() {
+  // Use the reading plan hook for state management
+  const {
+    state,
+    setState,
+    totalSessions,
+    totalDone,
+    progress,
+    currentWeek,
+    streak,
+    badges,
+    toggleSession,
+    saveNote,
+    saveWriting,
+    markAllWeek,
+    swapFiction,
+  } = useReadingPlan();
+
   const [query, setQuery] = useState('');
   const [domain, setDomain] = useState('All');
-  const [state, setState] = usePersistentState(createInitialState());
   const [cmdOpen, setCmdOpen] = useState(false);
   const hasScrolledRef = useRef(false);
   const [sessionTicker, setSessionTicker] = useState(null);
@@ -83,16 +97,16 @@ export default function App() {
   const [stateCheckOpen, setStateCheckOpen] = useState(false);
   const [pendingSession, setPendingSession] = useState(null);
 
-  const totalSessions = useMemo(
-    () => PLAN.weeks.reduce((acc, week) => acc + week.sessions.length, 0),
-    [],
-  );
-  const totalDone = useMemo(
-    () => PLAN.weeks.reduce((acc, week) => acc + week.sessions.filter((session) => state.checks[session.id]).length, 0),
-    [state.checks],
-  );
-  const progress = totalSessions ? totalDone / totalSessions : 0;
-  const currentWeek = Math.min(12, Math.max(1, diffWeeks(state.startDate) + 1));
+  // New UI states for calendar view
+  const [selectedWeek, setSelectedWeek] = useState(null); // Will default to currentWeek
+  const [selectedDay, setSelectedDay] = useState(null); // null = show all week
+  const [heatmapExpanded, setHeatmapExpanded] = useState(false);
+  const [insightSlideOpen, setInsightSlideOpen] = useState(false);
+  const [activeInsightSession, setActiveInsightSession] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [customEntryOpen, setCustomEntryOpen] = useState(false);
+  const [pendingCustomSession, setPendingCustomSession] = useState(null);
+
   const heroPct = Math.round(progress * 100);
   const daysActive = Object.keys(state.activityDates || {}).length;
   const currentWeekData = PLAN.weeks.find((week) => week.id === currentWeek);
@@ -104,6 +118,68 @@ export default function App() {
   const sessionsRemaining = Math.max(0, totalSessions - totalDone);
   const planDay = state.startDate ? Math.max(1, diffDays(state.startDate) + 1) : 1;
   const todayLabel = format(new Date(), 'EEEE, MMM d');
+
+  // Compute week completion status for navigator
+  const weekCompletionStatus = useMemo(() => {
+    return PLAN.weeks.reduce((acc, week) => {
+      const total = week.sessions.length;
+      const done = week.sessions.filter(s => state.checks[s.id]).length;
+      if (done === 0) {
+        acc[week.id] = 'empty';
+      } else if (done === total) {
+        acc[week.id] = 'complete';
+      } else {
+        acc[week.id] = 'partial';
+      }
+      return acc;
+    }, {});
+  }, [state.checks]);
+
+  // Calculate week start date (Monday) for selected week
+  const weekStartDate = useMemo(() => {
+    if (!state.startDate || selectedWeek === null) return startOfWeek(new Date(), { weekStartsOn: 1 });
+    const planStart = parseISO(state.startDate);
+    const mondayOfPlanStart = startOfWeek(planStart, { weekStartsOn: 1 });
+    return addWeeks(mondayOfPlanStart, selectedWeek - 1);
+  }, [state.startDate, selectedWeek]);
+
+  // Get selected week data and distribute sessions across days
+  const selectedWeekData = useMemo(() => {
+    return PLAN.weeks.find(w => w.id === selectedWeek);
+  }, [selectedWeek]);
+
+  // Distribute sessions evenly across Mon-Fri
+  const sessionsPerDay = useMemo(() => {
+    if (!selectedWeekData) return {};
+    const sessions = selectedWeekData.sessions;
+    const distribution = {};
+
+    // Simple distribution: spread sessions across Mon-Fri
+    sessions.forEach((session, index) => {
+      const dayOffset = index % 5; // 0-4 for Mon-Fri
+      const date = format(addDays(weekStartDate, dayOffset), 'yyyy-MM-dd');
+      distribution[date] = (distribution[date] || 0) + 1;
+    });
+
+    return distribution;
+  }, [selectedWeekData, weekStartDate]);
+
+  // Track completed sessions per day
+  const completedPerDay = useMemo(() => {
+    if (!selectedWeekData) return {};
+    const sessions = selectedWeekData.sessions;
+    const completed = {};
+
+    sessions.forEach((session, index) => {
+      if (state.checks[session.id]) {
+        const dayOffset = index % 5;
+        const date = format(addDays(weekStartDate, dayOffset), 'yyyy-MM-dd');
+        completed[date] = (completed[date] || 0) + 1;
+      }
+    });
+
+    return completed;
+  }, [selectedWeekData, weekStartDate, state.checks]);
 
   // Changed from single number to Set of numbers for multi-expand
   const [expandedWeeks, setExpandedWeeks] = useState(() => new Set([currentWeek]));
@@ -151,6 +227,13 @@ export default function App() {
     });
   }, [currentWeek]);
 
+  // Initialize selectedWeek to currentWeek on mount
+  useEffect(() => {
+    if (selectedWeek === null) {
+      setSelectedWeek(currentWeek);
+    }
+  }, [currentWeek, selectedWeek]);
+
   useEffect(() => {
     if (!hasScrolledRef.current) {
       hasScrolledRef.current = true;
@@ -184,22 +267,6 @@ export default function App() {
     return () => window.clearInterval(interval);
   }, [sessionTicker?.endsAt]);
 
-  const streak = useMemo(() => {
-    const dates = Object.keys(state.activityDates || {}).sort();
-    if (!dates.length) return 0;
-    const today = new Date();
-    let count = 0;
-    while (true) {
-      const stamp = today.toISOString().slice(0, 10);
-      if (state.activityDates[stamp]) {
-        count += 1;
-        today.setDate(today.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-    return count;
-  }, [state.activityDates]);
 
   useEffect(() => {
     const onKey = (event) => {
@@ -238,6 +305,7 @@ export default function App() {
             fragments: { ...prev.fragments, ...(data.state.fragments || {}) },
             weeklySummaries: { ...prev.weeklySummaries, ...(data.state.weeklySummaries || {}) },
             writingGoals: data.state.writingGoals || prev.writingGoals,
+            customSessions: { ...prev.customSessions, ...(data.state.customSessions || {}) },
           }));
           toast.success('Imported progress');
         }
@@ -269,23 +337,6 @@ export default function App() {
     }, 100);
   };
 
-  const markAllWeek = (id) => {
-    const week = PLAN.weeks.find((w) => w.id === id);
-    if (!week) return;
-    setState((prev) => {
-      const checks = { ...prev.checks };
-      week.sessions.forEach((session) => {
-        checks[session.id] = true;
-      });
-      return {
-        ...prev,
-        checks,
-        activityDates: { ...(prev.activityDates || {}), [todayYMD()]: true },
-      };
-    });
-    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-    toast.success(`Week ${id} completed!`);
-  };
 
   // Logic for flat filtering vs weekly view
   const isFlatView = domain !== 'All' || query.trim().length > 0;
@@ -307,7 +358,6 @@ export default function App() {
     }
   }, [query, domain, isFlatView]);
 
-  const badges = computeBadges(state);
   const statCards = [
     {
       label: 'Sessions logged',
@@ -373,78 +423,6 @@ export default function App() {
     });
   };
 
-  const toggleSession = (id) => {
-    setState((prev) => {
-      const nextChecked = !prev.checks[id];
-      const next = { ...prev, checks: { ...prev.checks, [id]: nextChecked } };
-      if (nextChecked) {
-        const stamp = todayYMD();
-        next.activityDates = { ...(prev.activityDates || {}), [stamp]: true };
-      }
-      return next;
-    });
-  };
-
-  const saveNote = (id, text) =>
-    setState((prev) => ({ ...prev, notes: { ...prev.notes, [id]: text } }));
-
-  const saveWriting = (sessionId, writing) => {
-    setState((prev) => {
-      const updates = { ...prev, writings: { ...prev.writings, [sessionId]: writing } };
-
-      // If fragment exists, create fragment entry
-      if (writing.fragment && writing.fragment.trim()) {
-        // Check if it's a fiction session
-        const isFictionSession = sessionId.includes('-fiction');
-
-        if (isFictionSession) {
-          // Handle fiction session
-          const weekId = parseInt(sessionId.replace('w', '').replace('-fiction', ''));
-          const week = PLAN.weeks.find(w => w.id === weekId);
-
-          if (week && week.fiction && writing.sectionTag) {
-            // Check if fiction was swapped
-            const isSwapped = prev.fictionSwaps?.[weekId] === 'runnerUp';
-            const bookTitle = isSwapped && week.fiction.runnerUp
-              ? week.fiction.runnerUp
-              : week.fiction.title;
-
-            const fragment = createFragment(
-              sessionId,
-              writing.fragment,
-              writing.sectionTag,
-              bookTitle,
-              week.id,
-              'fiction',
-              writing.sourceChapter,
-              writing.sourcePage
-            );
-            updates.fragments = { ...prev.fragments, [fragment.id]: fragment };
-          }
-        } else {
-          // Handle nonfiction session
-          const session = PLAN.weeks.flatMap(w => w.sessions).find(s => s.id === sessionId);
-          const week = PLAN.weeks.find(w => w.sessions.some(s => s.id === sessionId));
-
-          if (session && week && writing.sectionTag) {
-            const fragment = createFragment(
-              sessionId,
-              writing.fragment,
-              writing.sectionTag,
-              session.book,
-              week.id,
-              'nonfiction',
-              writing.sourceChapter,
-              writing.sourcePage
-            );
-            updates.fragments = { ...prev.fragments, [fragment.id]: fragment };
-          }
-        }
-      }
-
-      return updates;
-    });
-  };
 
   const updateFragment = (fragmentId, updates) => {
     setState((prev) => ({
@@ -456,17 +434,59 @@ export default function App() {
     }));
   };
 
-  const swapFiction = (weekId) => {
-    setState((prev) => {
-      const currentSwap = prev.fictionSwaps?.[weekId];
-      return {
-        ...prev,
-        fictionSwaps: {
-          ...prev.fictionSwaps,
-          [weekId]: currentSwap === 'runnerUp' ? null : 'runnerUp'
-        }
-      };
+
+  // New handlers for calendar view
+  const handleCaptureInsight = (session) => {
+    setActiveInsightSession(session);
+    setInsightSlideOpen(true);
+  };
+
+  const handleStartTimer = (sessionId, label, minutes) => {
+    const duration = minutes * 60;
+    const endsAt = Date.now() + duration * 1000;
+    setSessionTicker({
+      sessionId,
+      label,
+      duration,
+      remaining: duration,
+      endsAt,
+      minutes,
     });
+  };
+
+  const saveCustomSession = (title, captureInsight) => {
+    const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const weekId = selectedWeek || currentWeek;
+    const timestamp = new Date().toISOString();
+
+    setState((prev) => ({
+      ...prev,
+      customSessions: {
+        ...prev.customSessions,
+        [id]: {
+          id,
+          title,
+          weekId,
+          createdAt: timestamp,
+          completedAt: timestamp,
+        },
+      },
+      activityDates: { ...(prev.activityDates || {}), [todayYMD()]: true },
+    }));
+
+    setCustomEntryOpen(false);
+
+    if (captureInsight) {
+      // Open insight slide with custom session
+      setPendingCustomSession({ id, title });
+      setActiveInsightSession({ id, book: title });
+      setInsightSlideOpen(true);
+    } else {
+      confetti({ particleCount: 60, spread: 50, origin: { y: 0.6 } });
+      toast.success('Entry logged!');
+    }
+
+    return id;
   };
 
   return (
@@ -499,124 +519,105 @@ export default function App() {
         fragments={state.fragments || {}}
         onOpenFragments={() => setFragmentsHubOpen(true)}
         onOpenBooks={() => setBooksModalOpen(true)}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
       />
 
-      <main id="main-content" className="pb-32">
-          <section className="mx-auto mt-8 w-full max-w-6xl px-4 md:px-6">
+      <DashboardLayout
+        sidebar={
+          <Sidebar
+            phases={PLAN.phases}
+            weeks={PLAN.weeks}
+            currentWeek={currentWeek}
+            selectedWeek={selectedWeek || currentWeek}
+            onSelectWeek={(weekId) => {
+              setSelectedWeek(weekId);
+              setSidebarOpen(false); // Close mobile sidebar on selection
+            }}
+            completionStatus={weekCompletionStatus}
+            streak={streak}
+            progress={heroPct}
+            badgeCount={badges.filter(b => b.earned).length}
+          />
+        }
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+      >
+        <main id="main-content" className="pb-32 bg-transparent">
+          {/* Hero Section with Progress */}
+          <section className="mt-8 px-4 lg:px-6">
             <div className="overflow-hidden rounded-xl border border-white/20 bg-black p-6 shadow-sm">
-              <div className="space-y-4">
-                <h1 className="text-2xl font-semibold leading-tight text-white md:text-3xl">
-                  Craft a mind you trust — systems, EQ, craft, society, and sci‑fi in deliberate reps.
-                </h1>
+              <h1 className="text-2xl font-semibold leading-tight text-white md:text-3xl mb-4">
+                Craft a mind you trust — systems, EQ, craft, society, and sci‑fi in deliberate reps.
+              </h1>
 
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between text-xs text-white/50 mb-2">
-                      <span>Overall Progress</span>
-                      <span>{heroPct}%</span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.08]">
-                      <div
-                        className="h-full rounded-full bg-emerald-400"
-                        style={{ width: `${heroPct}%` }}
-                      />
-                    </div>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between text-xs text-white/50 mb-2">
+                    <span>Overall Progress</span>
+                    <span>{heroPct}%</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.08]">
+                    <div
+                      className="h-full rounded-full bg-emerald-400"
+                      style={{ width: `${heroPct}%` }}
+                    />
                   </div>
                 </div>
               </div>
             </div>
-            {/* Heatmap - Full Width */}
-            <div className="mt-4">
-              <Heatmap activityDates={state.activityDates || {}} />
-            </div>
-
-            {/* Stat Cards Grid */}
-            <div className="mt-4 grid gap-4 grid-cols-2 lg:grid-cols-4">
-              {statCards.map((card) => (
-                <StatCard key={card.label} {...card} />
-              ))}
-            </div>
           </section>
 
-
-
-          <Toolbar
-            query={query}
-            setQuery={setQuery}
-            domain={domain}
-            setDomain={setDomain}
+          {/* Today's Focus Card */}
+          <TodayFocusCard
+            plan={PLAN}
+            state={state}
             currentWeek={currentWeek}
-            domains={domains}
+            onToggleSession={toggleSession}
+            onStartTimer={handleStartTimer}
+            onCaptureInsight={handleCaptureInsight}
+            scrollTo={scrollTo}
+            onLogCustom={() => setCustomEntryOpen(true)}
           />
 
-          <TodayCard plan={PLAN} state={state} currentWeek={currentWeek} scrollTo={scrollTo} />
+          {/* Dashboard Content */}
+          <div className="mt-8 px-4 lg:px-6">
+            <WeekHeader
+              week={selectedWeekData}
+              planDay={planDay}
+              isCurrentWeek={selectedWeek === currentWeek}
+            />
 
-          <div className="mx-auto mt-8 grid w-full max-w-6xl gap-5 px-4 md:px-6">
-            {!isFlatView && <WeekZeroCard />}
-            {!isFlatView && <SipsAndSwaps plan={PLAN} />}
+            {/* Two-column grid for schedule and preview */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <WeekSchedule
+                weekData={selectedWeekData}
+                weekStartDate={weekStartDate}
+                state={state}
+                onToggleSession={toggleSession}
+                onStartTimer={handleStartTimer}
+                onCaptureInsight={handleCaptureInsight}
+                customSessions={state.customSessions || {}}
+              />
 
-            {isFlatView ? (
-              <div className="space-y-4">
-                {filteredContent.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-lg text-white/60 mb-1">No sessions found</p>
-                    <p className="text-sm text-white/40">Try adjusting your search or filter</p>
-                  </div>
-                ) : (
-                  filteredContent.map(session => (
-                    <SessionRow
-                      key={session.id}
-                      session={session}
-                      checked={Boolean(state.checks[session.id])}
-                      note={state.notes[session.id]}
-                      writing={state.writings?.[session.id]}
-                      onToggle={toggleSession}
-                      onSaveNote={saveNote}
-                      onSaveWriting={saveWriting}
-                      onStartTimer={handleStartSessionTimer}
-                    />
-                  ))
-                )}
-              </div>
-            ) : (
-              filteredContent.map((week, idx) => {
-                // Find the phase for this week
-                const phase = PLAN.phases.find(p => p.weeks.includes(week.id));
-                const isFirstInPhase = phase && phase.weeks[0] === week.id;
+              <NextWeekPreview
+                week={PLAN.weeks.find(w => w.id === (selectedWeek || currentWeek) + 1)}
+                onJumpToWeek={setSelectedWeek}
+              />
+            </div>
 
-                return (
-                  <div key={week.id}>
-                    {isFirstInPhase && (
-                      <div className="flex items-center gap-3 py-6 first:pt-0">
-                        <span className="text-xs uppercase tracking-widest text-white/40">
-                          {phase.emoji} {phase.title}
-                        </span>
-                        <div className="flex-1 h-px bg-white/10" />
-                      </div>
-                    )}
-                    <div id={`week-${week.id}`} className="scroll-mt-28 md:scroll-mt-32">
-                      <WeekCard
-                        week={week}
-                        state={state}
-                        setState={setState}
-                        isCurrent={week.id === currentWeek}
-                        expanded={expandedWeeks.has(week.id)}
-                        onToggle={() => toggleWeekExpansion(week.id)}
-                        onStartTimer={handleStartSessionTimer}
-                        onToggleSession={toggleSession}
-                        onSaveNote={saveNote}
-                        onSaveWriting={saveWriting}
-                        onSwapFiction={swapFiction}
-                      />
-                    </div>
-                  </div>
-                );
-              })
-            )}
+            {/* Collapsible Heatmap */}
+            <div className="mt-6">
+              <CollapsibleHeatmap
+                activityDates={state.activityDates || {}}
+                isExpanded={heatmapExpanded}
+                onToggle={() => setHeatmapExpanded(!heatmapExpanded)}
+              />
+            </div>
           </div>
 
           <Badges badges={badges} />
-      </main>
+        </main>
+      </DashboardLayout>
 
       <div className="fixed bottom-0 inset-x-0 z-40 md:hidden">
         <div className="mx-auto max-w-5xl">
@@ -697,6 +698,24 @@ export default function App() {
           setPendingSession(null);
         }}
         sessionLabel={pendingSession?.book}
+      />
+
+      <InsightSlideOut
+        isOpen={insightSlideOpen}
+        onClose={() => {
+          setInsightSlideOpen(false);
+          setActiveInsightSession(null);
+          setPendingCustomSession(null);
+        }}
+        session={activeInsightSession}
+        state={state}
+        onSave={saveWriting}
+      />
+
+      <CustomEntryModal
+        isOpen={customEntryOpen}
+        onClose={() => setCustomEntryOpen(false)}
+        onSave={saveCustomSession}
       />
 
       <TimerFAB
